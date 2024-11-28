@@ -17,3 +17,4 @@ The following steps were taken to implement key architectural patterns and impro
 3. Applied VSA (Vertical Slice Architecture) pattern (https://www.milanjovanovic.tech/blog/vertical-slice-architecture).
 4. Droppped the Startup.cs file, making use of simplified hosting model in the `Program.cs` file to configure services and middleware, available in later .NET versions.
 5. Refactor tests to use RestSharp.
+6. Added IXunitSerializer to enable Theory test to list all test outcomes in test explorer tree
