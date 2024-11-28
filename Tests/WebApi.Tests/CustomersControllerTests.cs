@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace RocketStoreApi.Tests
 {
@@ -70,11 +71,11 @@ namespace RocketStoreApi.Tests
         [Theory]
         [MemberData(nameof(CreateRequiresNameAndEmailData))]
 
-        public async Task CreateRequiresNameAndEmailAsync(string jsonBody, IDictionary<string, string[]> expectedErrors)
+        public async Task CreateRequiresNameAndEmailAsync(ValidationErrorData validationErrorData)
         {
             // Arrange
             RestRequest request = new RestRequest("api/customers", Method.Post);
-            request.AddJsonBody(jsonBody);
+            request.AddJsonBody(validationErrorData.Json);
 
             // Act
             var sut = await this.fixture.RestClient.ExecutePostAsync(request);
@@ -84,38 +85,67 @@ namespace RocketStoreApi.Tests
 
             ValidationProblemDetails error = await this.GetResponseContentAsync<ValidationProblemDetails>(sut);
             error.Should().NotBeNull();
-            error.Errors.Should().BeEquivalentTo(expectedErrors);
+            error.Errors.Should().BeEquivalentTo(validationErrorData.ExpectedErrors);
         }
 
         public static IEnumerable<object[]> CreateRequiresNameAndEmailData()
         {
             Fixture fixture = new();
 
-            IDictionary<string, string[]> expectedErrors = new Dictionary<string, string[]>
-            {
-                { nameof(Customer.Name), ["The Name field is required."] },
-                { nameof(Customer.EmailAddress), ["The Email field is required."] },
+            yield return new object[] { new ValidationErrorData()
+                {
+                    Json = $@"{{ ""{nameof(Customer.Name)}"" : null, ""{nameof(Customer.EmailAddress)}"": null }}",
+                    ExpectedErrors = new Dictionary<string, string[]>
+                    {
+                        { "Name", new string[] { "The Name field is required." } },
+                        { "EmailAddress", new string[] { "The Email field is required." } }
+                    }
+                }
             };
-            yield return new object[] { $@"{{ ""{nameof(Customer.Name)}"" : null, ""{nameof(Customer.EmailAddress)}"": null }}", expectedErrors };
-            yield return new object[] { @"{ }", expectedErrors };
 
-            expectedErrors = new Dictionary<string, string[]>
-            {
-                { nameof(Customer.EmailAddress), ["The Email field is required."] },
+            yield return new object[] { new ValidationErrorData()
+                {
+                    Json = @"{ }",
+                    ExpectedErrors = new Dictionary<string, string[]>
+                    {
+                        { "Name", new string[] { "The Name field is required." } },
+                        { "EmailAddress", new string[] { "The Email field is required." } }
+                    }
+                }
             };
-            yield return new object[] { $@"{{ ""{nameof(Customer.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(Customer.EmailAddress)}"": null }}", expectedErrors };
 
-            expectedErrors = new Dictionary<string, string[]>
-            {
-                { nameof(Customer.EmailAddress), ["The Email field is not a valid e-mail address."] },
+            yield return new object[] {
+                new ValidationErrorData()
+                {
+                    Json = $@"{{ ""{nameof(Customer.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(Customer.EmailAddress)}"": null }}",
+                    ExpectedErrors = new Dictionary<string, string[]>
+                    {
+                        { nameof(Customer.EmailAddress), new[] { "The Email field is required." } }
+                    }
+                }
             };
-            yield return new object[] { $@"{{ ""{nameof(Customer.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(Customer.EmailAddress)}"": ""{fixture.Create<string>()}"" }}", expectedErrors };
 
-            expectedErrors = new Dictionary<string, string[]>
-            {
-                { nameof(Customer.VatNumber), ["The field VAT Number must match the regular expression '^[0-9]{9}$'."] },
+            yield return new object[] {
+                new ValidationErrorData()
+                {
+                    Json =  $@"{{ ""{nameof(Customer.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(Customer.EmailAddress)}"": ""{fixture.Create<string>()}"" }}",
+                    ExpectedErrors = new Dictionary<string, string[]>
+                    {
+                        { nameof(Customer.EmailAddress), ["The Email field is not a valid e-mail address."] }
+                    }
+                }
             };
-            yield return new object[] { $@"{{ ""{nameof(Customer.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(Customer.EmailAddress)}"" : ""valid@example.com"", ""{nameof(Customer.VatNumber)}"": ""{fixture.Create<int>()}""}}", expectedErrors };
+
+            yield return new object[] {
+                new ValidationErrorData()
+                {
+                    Json =  $@"{{ ""{nameof(Customer.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(Customer.EmailAddress)}"" : ""valid@example.com"", ""{nameof(Customer.VatNumber)}"": ""{fixture.Create<int>()}""}}",
+                    ExpectedErrors = new Dictionary<string, string[]>
+                    {
+                        { nameof(Customer.VatNumber), ["The field VAT Number must match the regular expression '^[0-9]{9}$'."] }
+                    }
+                }
+            };
         }
 
         /// <summary>
@@ -189,5 +219,29 @@ namespace RocketStoreApi.Tests
         }
 
         #endregion
+    }
+
+    public class ValidationErrorData : IXunitSerializable
+    {
+        public string Json { get; set; } = default!;
+        public Dictionary<string, string[]> ExpectedErrors { get; set; } = default!;
+
+        public void Deserialize(IXunitSerializationInfo info)
+        {
+            Json = info.GetValue<string>("Json");
+
+            // Needed for complex types
+            var requestJson = info.GetValue<string>(nameof(ExpectedErrors));
+            ExpectedErrors = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string[]>>(requestJson)!;
+        }
+
+        public void Serialize(IXunitSerializationInfo info)
+        {
+            info.AddValue("Json", Json);
+
+            // Needed for complex types
+            var requestJson = System.Text.Json.JsonSerializer.Serialize(ExpectedErrors);
+            info.AddValue(nameof(ExpectedErrors), requestJson);
+        }
     }
 }
