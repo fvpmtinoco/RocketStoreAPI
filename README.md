@@ -1,3 +1,7 @@
+The following steps were taken to implement key architectural patterns and improve the organization of the codebase. The migration to .NET 8 included moving from Startup.cs to Program.cs for application configuration. 
+- The CQRS and Mediator patterns were implemented to separate concerns and manage command/query logic. 
+- Additionally, the Vertical Slice Architecture (VSA) pattern was applied because the application is intended to be a microservice and will not grow larger, avoiding the boilerplate code typically present in Clean Architecture. While Clean Architecture is a great choice for more complex APIs, VSA offers a simpler, more focused approach for smaller, feature-specific services, without neglecting the separation of concerns. These changes help improve the structure, clarity, and maintainability of the application.
+- 
 ### Steps 27/11/2024:
 1. Fixed compilation errors.
 2. Fixed integration tests.
