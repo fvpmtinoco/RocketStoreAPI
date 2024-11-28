@@ -79,3 +79,6 @@ app.MapGetCustomersById();
 app.UseAuthorization();
 
 app.Run();
+
+// For Web API integration tests
+public partial class Program { }

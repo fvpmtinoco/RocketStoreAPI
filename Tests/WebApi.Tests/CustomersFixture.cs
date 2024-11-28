@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
+using RestSharp;
 using RocketStoreApi.Controllers;
 using System;
 using System.IO;
 using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+using Xunit;
 
 namespace RocketStoreApi.Tests
 {
@@ -16,7 +14,8 @@ namespace RocketStoreApi.Tests
     /// Defines a test fixture used to test the <see cref="CustomersController"/>.
     /// </summary>
     /// <seealso cref="IDisposable" />
-    public sealed partial class CustomersFixture : IDisposable
+    [CollectionDefinition("CustomersAPI")]
+    public sealed partial class CustomersFixture : ICollectionFixture<CustomersFixture>
     {
         // Ignore Spelling: json
 
@@ -33,8 +32,9 @@ namespace RocketStoreApi.Tests
             get;
         }
 
-        public HttpClient Client { get; private set; }
-        public WebApplicationFactory<Program> Factory { get; private set; }
+        public RestClient RestClient { get; private set; }
+        private HttpClient client { get; set; }
+
 
         #endregion
 
@@ -46,7 +46,7 @@ namespace RocketStoreApi.Tests
         public CustomersFixture()
         {
             // Create a WebApplicationFactory for the minimal API
-            this.Factory = new WebApplicationFactory<Program>()
+            WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
                 .WithWebHostBuilder(builder =>
                 {
                     // Configure additional services or settings needed for the test environment
@@ -65,43 +65,19 @@ namespace RocketStoreApi.Tests
                 });
 
             // Create the test client from the factory
-            this.Client = this.Factory.CreateClient();
+            client = factory.CreateClient();
+
+            RestClient = new RestClient(client);
         }
 
         #endregion
 
         #region Public Methods
 
-        /// <summary>
-        /// Send a post request.
-        /// </summary>
-        /// <typeparam name="T">The model type.</typeparam>
-        /// <param name="endpointPath">The endpoint path.</param>
-        /// <param name="model">The model instance.</param>
-        /// <returns>
-        /// The <see cref="Task{TResult}"/> that represents the asynchronous operation.
-        /// The <see cref="HttpResponseMessage"/> instance.
-        /// </returns>
-        public async Task<HttpResponseMessage> PostAsync<T>(string endpointPath, T model)
-        {
-            string json = JsonSerializer.Serialize(model);
-
-            using StringContent content = new StringContent(
-                json,
-                Encoding.UTF8,
-                "application/json");
-
-            return await this.Client.PostAsync(
-                new Uri($"{this.Server.BaseAddress}{endpointPath}"),
-                content)
-                .ConfigureAwait(false);
-        }
-
         /// <inheritdoc />
         public void Dispose()
         {
             this.Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
 
         #endregion
@@ -114,14 +90,19 @@ namespace RocketStoreApi.Tests
             {
                 if (disposing)
                 {
-                    if (this.Client != null)
+                    if (this.client != null)
                     {
-                        this.Client.Dispose();
+                        this.client.Dispose();
                     }
 
                     if (this.Server != null)
                     {
                         this.Server.Dispose();
+                    }
+
+                    if (this.RestClient != null)
+                    {
+                        this.RestClient = null;
                     }
                 }
 

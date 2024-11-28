@@ -70,7 +70,14 @@ namespace RocketStoreApi.Managers
 
             this.Context.Customers.Add(entity);
 
-            await this.Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await this.Context.SaveChangesAsync(cancellationToken);
+            }
+            catch (Exception)
+            {
+
+            }
 
             this.Logger.LogInformation($"Customer '{customer.Name}' created successfully.");
 

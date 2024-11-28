@@ -17,11 +17,7 @@ namespace RocketStoreApi.Models
         [Required(AllowEmptyStrings = false)]
         [DisplayName("Name")]
         [JsonPropertyName("name")]
-        public string Name
-        {
-            get;
-            set;
-        }
+        public string Name { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the customer email address.
@@ -30,11 +26,7 @@ namespace RocketStoreApi.Models
         [EmailAddress]
         [DisplayName("Email")]
         [JsonPropertyName("emailAddress")]
-        public string EmailAddress
-        {
-            get;
-            set;
-        }
+        public string EmailAddress { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the customer VAT number.
@@ -42,11 +34,7 @@ namespace RocketStoreApi.Models
         [RegularExpression("^[0-9]{9}$")]
         [DisplayName("VAT Number")]
         [JsonPropertyName("vatNumber")]
-        public string VatNumber
-        {
-            get;
-            set;
-        }
+        public string? VatNumber { get; set; }
 
         #endregion
     }
