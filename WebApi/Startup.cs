@@ -1,87 +1,92 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using RocketStoreApi.Managers;
-using RocketStoreApi.Storage;
+﻿//using AutoMapper;
+//using Microsoft.AspNetCore.Builder;
+//using Microsoft.AspNetCore.Hosting;
+//using Microsoft.EntityFrameworkCore;
+//using Microsoft.Extensions.DependencyInjection;
+//using Microsoft.Extensions.Hosting;
+//using RocketStoreApi.Managers;
+//using RocketStoreApi.Storage;
 
-namespace RocketStoreApi
-{
-    /// <summary>
-    /// Defines the startup of the application.
-    /// </summary>
-    public partial class Startup
-    {
-        #region Constructors
+//namespace RocketStoreApi
+//{
+//    /// <summary>
+//    /// Defines the startup of the application.
+//    /// </summary>
+//    public partial class Startup
+//    {
+//        #region Constructors
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Startup"/> class.
-        /// </summary>
-        public Startup()
-        {
-        }
+//        /// <summary>
+//        /// Initializes a new instance of the <see cref="Startup"/> class.
+//        /// </summary>
+//        public Startup()
+//        {
+//        }
 
-        #endregion
+//        #endregion
 
-        #region Public Methods
+//        #region Public Methods
 
-        /// <summary>
-        /// Configures the services required by the application.
-        /// </summary>
-        /// <param name="services">The service collection.</param>
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseInMemoryDatabase("RocketStoreApiDb"));
+//        /// <summary>
+//        /// Configures the services required by the application.
+//        /// </summary>
+//        /// <param name="services">The service collection.</param>
+//        public void ConfigureServices(IServiceCollection services)
+//        {
+//            services.AddDbContext<ApplicationDbContext>(options =>
+//                options.UseInMemoryDatabase("RocketStoreApiDb"));
 
-            services.AddControllers();
+//            services.AddControllers();
 
-            services.AddOpenApiDocument(
-                (options) =>
-                {
-                    options.DocumentName = "Version 1";
-                    options.Title = "RocketStore API";
-                    options.Description = "REST API for the RocketStore Web Application";
-                });
+//            services.AddOpenApiDocument(
+//                (options) =>
+//                {
+//                    options.DocumentName = "Version 1";
+//                    options.Title = "RocketStore API";
+//                    options.Description = "REST API for the RocketStore Web Application";
+//                });
 
-            // Register AutoMapper and scan the current assembly for profiles
-            services.AddAutoMapper(typeof(Startup));
+//            // Register AutoMapper and scan the current assembly for profiles
+//            services.AddAutoMapper(typeof(Startup));
 
-            services.AddScoped<ICustomersManager, CustomersManager>();
+//            services.AddScoped<ICustomersManager, CustomersManager>();
 
-            services.AddScoped<Profile, MappingProfile>();
-        }
+//            services.AddScoped<Profile, MappingProfile>();
 
-        /// <summary>
-        /// Configures the application.
-        /// </summary>
-        /// <param name="app">The application.</param>
-        /// <param name="env">The environment.</param>
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+//            services.AddMediatR(config =>
+//            {
+//                config.RegisterServicesFromAssemblies(typeof(Program).Assembly);
+//            });
+//        }
 
-            app.UseOpenApi();
+//        /// <summary>
+//        /// Configures the application.
+//        /// </summary>
+//        /// <param name="app">The application.</param>
+//        /// <param name="env">The environment.</param>
+//        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+//        {
+//            if (env.IsDevelopment())
+//            {
+//                app.UseDeveloperExceptionPage();
+//            }
 
-            app.UseSwaggerUi();
+//            app.UseOpenApi();
 
-            app.UseHttpsRedirection();
+//            app.UseSwaggerUi();
 
-            app.UseRouting();
+//            app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+//            app.UseRouting();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-        }
+//            app.UseAuthorization();
 
-        #endregion
-    }
-}
+//            app.UseEndpoints(endpoints =>
+//            {
+//                endpoints.MapControllers();
+//            });
+//        }
+
+//        #endregion
+//    }
+//}

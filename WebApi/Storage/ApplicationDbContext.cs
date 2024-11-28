@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using RocketStoreApi.Entities;
 
 namespace RocketStoreApi.Storage
@@ -8,8 +7,7 @@ namespace RocketStoreApi.Storage
     /// Defines the application database context.
     /// </summary>
     /// <seealso cref="Microsoft.EntityFrameworkCore.DbContext" />
-    [SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Created via dependency injection.")]
-    internal partial class ApplicationDbContext : DbContext
+    public partial class ApplicationDbContext : DbContext
     {
         #region Public Properties
 

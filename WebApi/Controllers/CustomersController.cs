@@ -13,7 +13,6 @@ namespace RocketStoreApi.Controllers
     /// Defines the customers controller.
     /// This controller provides actions on customers.
     /// </summary>
-    [ControllerName("Customers")]
     [ApiController]
     public partial class CustomersController : ControllerBase
     {
@@ -37,7 +36,7 @@ namespace RocketStoreApi.Controllers
             if (customer != null)
             {
                 var manager = this.HttpContext.RequestServices.GetRequiredService<ICustomersManager>();
-                Result<Guid> result = await manager.CreateCustomerAsync(customer).ConfigureAwait(false);
+                Result<Guid> result = await manager.CreateCustomerAsync(customer);
 
                 if (result.FailedWith(ErrorCodes.CustomerAlreadyExists))
                 {

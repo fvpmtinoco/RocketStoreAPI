@@ -20,7 +20,7 @@ namespace RocketStoreApi.Managers
                 .AfterMap(
                     (source, target) =>
                     {
-                        target.Id = Guid.NewGuid().ToString();
+                        target.Id = Guid.NewGuid();
                     });
         }
 

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RocketStoreApi.Storage;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RocketStoreApi.Managers
 {
@@ -13,7 +12,6 @@ namespace RocketStoreApi.Managers
     /// Defines the default implementation of <see cref="ICustomersManager"/>.
     /// </summary>
     /// <seealso cref="ICustomersManager" />
-    [SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Created via dependency injection.")]
     internal partial class CustomersManager : ICustomersManager
     {
         #region Private Properties
@@ -61,7 +59,7 @@ namespace RocketStoreApi.Managers
 
             Entities.Customer entity = this.Mapper.Map<Models.Customer, Entities.Customer>(customer);
 
-            if (this.Context.Customers.Any(i => i.Email == entity.Email))
+            if (await Context.Customers.AnyAsync(i => i.Email == entity.Email, cancellationToken))
             {
                 this.Logger.LogWarning($"A customer with email '{entity.Email}' already exists.");
 
@@ -76,8 +74,7 @@ namespace RocketStoreApi.Managers
 
             this.Logger.LogInformation($"Customer '{customer.Name}' created successfully.");
 
-            return Result<Guid>.Success(
-                new Guid(entity.Id));
+            return Result<Guid>.Success(entity.Id);
         }
 
         #endregion

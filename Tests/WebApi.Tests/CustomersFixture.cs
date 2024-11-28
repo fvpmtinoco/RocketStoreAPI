@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
+using RocketStoreApi.Controllers;
+using System;
 using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Configuration;
-using RocketStoreApi.Controllers;
 
 namespace RocketStoreApi.Tests
 {
@@ -32,10 +33,8 @@ namespace RocketStoreApi.Tests
             get;
         }
 
-        private HttpClient Client
-        {
-            get;
-        }
+        public HttpClient Client { get; private set; }
+        public WebApplicationFactory<Program> Factory { get; private set; }
 
         #endregion
 
@@ -46,21 +45,27 @@ namespace RocketStoreApi.Tests
         /// </summary>
         public CustomersFixture()
         {
-            IConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
-                .AddEnvironmentVariables();
+            // Create a WebApplicationFactory for the minimal API
+            this.Factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    // Configure additional services or settings needed for the test environment
+                    builder.ConfigureAppConfiguration((context, config) =>
+                    {
+                        config.SetBasePath(Directory.GetCurrentDirectory())
+                              .AddJsonFile("appsettings.json")
+                              .AddEnvironmentVariables();
+                    });
 
-            IConfigurationRoot configuration = configurationBuilder.Build();
+                    // Optionally, override services or add mocks for testing, e.g., replace DB context or MediatR services
+                    builder.ConfigureServices(services =>
+                    {
+                        // Mock any dependencies if necessary
+                    });
+                });
 
-            IWebHostBuilder webHostBuilder = new WebHostBuilder()
-                .UseEnvironment("Development")
-                .UseConfiguration(configuration)
-                .UseStartup<Startup>();
-            
-            this.Server = new TestServer(webHostBuilder);
-
-            this.Client = this.Server.CreateClient();
+            // Create the test client from the factory
+            this.Client = this.Factory.CreateClient();
         }
 
         #endregion

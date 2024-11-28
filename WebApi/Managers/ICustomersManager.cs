@@ -8,7 +8,7 @@ namespace RocketStoreApi.Managers
     /// Defines the interface of the customers manager.
     /// The customers manager allows retrieving, creating, and deleting customers.
     /// </summary>
-    public partial interface ICustomersManager
+    public interface ICustomersManager
     {
         #region Methods
 

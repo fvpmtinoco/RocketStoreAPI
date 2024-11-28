@@ -1,4 +1,6 @@
-﻿namespace RocketStoreApi.Entities
+﻿using System;
+
+namespace RocketStoreApi.Entities
 {
     /// <summary>
     /// Defines a customer.
@@ -10,7 +12,7 @@
         /// <summary>
         /// Gets or sets the customer identifier.
         /// </summary>
-        public string Id
+        public Guid Id
         {
             get;
             set;

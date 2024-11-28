@@ -1,35 +1,81 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RocketStoreApi.Customers.GetCustomers;
+using RocketStoreApi.Managers;
+using RocketStoreApi.Storage;
 
-namespace RocketStoreApi
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the API
+
+builder.Services.AddMediatR(config =>
 {
-    /// <summary>
-    /// Defines the entry point of the application.
-    /// </summary>
-    public static partial class Program
+    // Register MediatR services from the current assembly
+    config.RegisterServicesFromAssemblies(typeof(Program).Assembly);
+});
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseInMemoryDatabase("RocketStoreApiDb"));
+
+builder.Services.AddOpenApiDocument(
+    (options) =>
     {
-        #region Public Methods
+        options.DocumentName = "Version 1";
+        options.Title = "RocketStore API";
+        options.Description = "REST API for the RocketStore Web Application";
+    });
 
-        /// <summary>
-        /// Defines the entry point of the application.
-        /// </summary>
-        /// <param name="args">The arguments.</param>
-        public static void Main(string[] args)
+// Register AutoMapper and scan the current assembly for profiles
+builder.Services.AddAutoMapper(typeof(Program));
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Group endpoints under the "Customers" category in Swagger UI
+    options.TagActionsBy(api =>
+    {
+        if (api.RelativePath.Contains("customers", System.StringComparison.OrdinalIgnoreCase))
         {
-            CreateHostBuilder(args).Build().Run();
+            return new[] { "Customers" };
         }
+        return new[] { "Default" };
+    });
+});
 
-        #endregion
+builder.Services.AddScoped<ICustomersManager, CustomersManager>();
 
-        #region Private Methods
+builder.Services.AddScoped<Profile, MappingProfile>();
+builder.Services.AddControllers();
 
-        private static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+var app = builder.Build();
 
-        #endregion
-    }
+// Configure the HTTP request pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
 }
+
+// Enable OpenAPI (Swagger) for API documentation
+app.UseOpenApi();
+app.UseSwaggerUi();
+app.UseSwagger();
+
+// Redirect HTTP requests to HTTPS
+app.UseHttpsRedirection();
+
+// Set up routing (necessary for minimal API and controllers)
+app.UseRouting();
+
+app.MapControllers();
+
+//Minimal API 
+app.MapGetCustomers();
+app.MapGetCustomersById();
+
+// Add authorization middleware
+app.UseAuthorization();
+
+app.Run();

@@ -2,15 +2,24 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
         <AssemblyName>RocketStoreApi</AssemblyName>
         <RootNamespace>RocketStoreApi</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup>
-        <EnableNETAnalyzers>true</EnableNETAnalyzers>
-        <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
-        <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
-        <RunAnalyzers>true</RunAnalyzers>
+        <EnableNETAnalyzers>false</EnableNETAnalyzers>
+        <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+        <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
+        <RunAnalyzers>false</RunAnalyzers>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <NoWarn>1701;1702;1591</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+      <NoWarn>1701;1702;1591</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -18,12 +27,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AsyncFixer" Version="1.6.0" PrivateAssets="All" />
-        <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.12.19" PrivateAssets="All" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
+        <PackageReference Include="MediatR" Version="12.4.1" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.11" />
         <PackageReference Include="NSwag.AspNetCore" Version="14.2.0" />
-        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.11" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="7.1.0" />
     </ItemGroup>
 
 </Project>
