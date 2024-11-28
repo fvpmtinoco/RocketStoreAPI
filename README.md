@@ -10,3 +10,4 @@
 1. Implemented CQRS and Mediator patterns using Mediatr.
 2. Implemented US02 & US03 using the minimal API pattern.
 3. Applied VSA (Vertical Slice Architecture) pattern (https://www.milanjovanovic.tech/blog/vertical-slice-architecture).
+4. Droppped the Startup.cs file, making use of simplified hosting model in the `Program.cs` file to configure services and middleware, available in later .NET versions.
