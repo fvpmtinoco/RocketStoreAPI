@@ -23,4 +23,6 @@ The following steps were taken to implement key architectural patterns and impro
 ### Steps 29/11/2024:
 1. Refactored US01 and corresponding integration tests.
 2. Used FluentValidation to replicate the validations that existed in the Customer model.
+3. Refactored project folder structure
+4. Added docker support
 
