@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RocketStoreApi.CQRS;
+using RocketStoreApi.Database.Entities;
 using RocketStoreApi.Managers;
 using RocketStoreApi.Storage;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace RocketStoreApi.Customers.CreateCustomer
+namespace RocketStoreApi.Features.CreateCustomer
 {
     public record CreateCustomerCommand(string Name, string EmailAddress, string? VatNumber) : ICommand<Result<CreateCustomerResult, CreateCustomerErrorCodes>>;
     public record CreateCustomerResult(Guid Id);
@@ -18,7 +19,7 @@ namespace RocketStoreApi.Customers.CreateCustomer
 
         public async Task<Result<CreateCustomerResult, CreateCustomerErrorCodes>> Handle(CreateCustomerCommand command, CancellationToken cancellationToken)
         {
-            Entities.Customer entity = new Entities.Customer
+            Customer entity = new Database.Entities.Customer
             {
                 Name = command.Name,
                 Email = command.EmailAddress,

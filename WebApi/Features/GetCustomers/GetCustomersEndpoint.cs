@@ -1,11 +1,15 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using RocketStoreApi.Models;
+using RocketStoreApi.SharedModels;
 using System.Collections.Generic;
 
-namespace RocketStoreApi.Customers.GetCustomers
+namespace RocketStoreApi.Features.GetCustomers
 {
+    /// <summary>
+    /// Response object for GetCustomers
+    /// </summary>
+    /// <param name="Customers"></param>
     public record GetCustomersResponse(List<Customer> Customers);
 
     public static class GetCustomersEndpoint

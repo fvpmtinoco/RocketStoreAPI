@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RocketStoreApi.Entities;
+using RocketStoreApi.Database.Entities;
 
 namespace RocketStoreApi.Storage
 {

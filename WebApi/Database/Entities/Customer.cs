@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RocketStoreApi.Entities
+namespace RocketStoreApi.Database.Entities
 {
     /// <summary>
     /// Defines a customer.

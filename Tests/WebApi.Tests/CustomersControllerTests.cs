@@ -2,8 +2,8 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using RestSharp;
-using RocketStoreApi.Customers.CreateCustomer;
-using RocketStoreApi.Models;
+using RocketStoreApi.Features.CreateCustomer;
+using RocketStoreApi.SharedModels;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -12,9 +12,6 @@ using Xunit.Abstractions;
 
 namespace RocketStoreApi.Tests
 {
-    /// <summary>
-    /// Provides integration tests for the <see cref="CustomersController"/> type.
-    /// </summary>
     [Collection("CustomersAPI")]
     public partial class CustomersControllerTests(CustomersFixture fixture) : TestsBase, IClassFixture<CustomersFixture>
     {

@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RocketStoreApi.CQRS;
-using RocketStoreApi.Entities;
+using RocketStoreApi.Database.Entities;
 using RocketStoreApi.Storage;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace RocketStoreApi.Customers.GetCustomers
+namespace RocketStoreApi.Features.GetCustomers
 {
     public class GetCustomersQuery(string? name, string? email) : IQuery<IEnumerable<Customer>>
     {

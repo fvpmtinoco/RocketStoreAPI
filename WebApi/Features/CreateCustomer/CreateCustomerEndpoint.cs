@@ -3,15 +3,24 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RocketStoreApi.Models;
+using RocketStoreApi.SharedModels;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 
-namespace RocketStoreApi.Customers.CreateCustomer
+namespace RocketStoreApi.Features.CreateCustomer
 {
+    /// <summary>
+    /// Represents a request to create a new customer.
+    /// </summary>
+    /// <param name="Customer"></param>
     public record CreateCustomerRequest(Customer Customer);
+
+    /// <summary>
+    /// Represents a response to a successful creation of a new customer.
+    /// </summary>
+    /// <param name="Id"></param>
     public record CreateCustomerResponse(Guid Id);
 
     public static class CreateCustomerEndpoint

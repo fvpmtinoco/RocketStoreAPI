@@ -1,12 +1,12 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using RocketStoreApi.Models;
+using RocketStoreApi.SharedModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace RocketStoreApi.Customers.GetCustomers
+namespace RocketStoreApi.Features.GetCustomers
 {
     public record GetCustomersByIdResponse(Customer Customer);
 
