@@ -28,6 +28,8 @@ The following steps were taken to implement key architectural patterns and impro
 5. Implemented US04 & US05
 6. Mapped appsettings to records in order to inject them and read external API settings
 
+#### TODO: Apply caching in external API request?
+
 
 
 
