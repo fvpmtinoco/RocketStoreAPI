@@ -2,10 +2,8 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using RestSharp;
-using RocketStoreApi.Controllers;
-using RocketStoreApi.Managers;
+using RocketStoreApi.Customers.CreateCustomer;
 using RocketStoreApi.Models;
-using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -85,65 +83,50 @@ namespace RocketStoreApi.Tests
 
             ValidationProblemDetails error = await this.GetResponseContentAsync<ValidationProblemDetails>(sut);
             error.Should().NotBeNull();
-            error.Errors.Should().BeEquivalentTo(validationErrorData.ExpectedErrors);
+            error.Errors.Keys.Should().BeEquivalentTo(validationErrorData.ExpectedErrors);
         }
 
         public static IEnumerable<object[]> CreateRequiresNameAndEmailData()
         {
             Fixture fixture = new();
 
-            yield return new object[] { new ValidationErrorData()
+            yield return new object[] {
+                new ValidationErrorData()
                 {
-                    Json = $@"{{ ""{nameof(Customer.Name)}"" : null, ""{nameof(Customer.EmailAddress)}"": null }}",
-                    ExpectedErrors = new Dictionary<string, string[]>
-                    {
-                        { "Name", new string[] { "The Name field is required." } },
-                        { "EmailAddress", new string[] { "The Email field is required." } }
-                    }
-                }
-            };
-
-            yield return new object[] { new ValidationErrorData()
-                {
-                    Json = @"{ }",
-                    ExpectedErrors = new Dictionary<string, string[]>
-                    {
-                        { "Name", new string[] { "The Name field is required." } },
-                        { "EmailAddress", new string[] { "The Email field is required." } }
-                    }
+                    Json = $@"{{ ""customer"": {{ ""{nameof(Customer.Name)}"" : null, ""{nameof(Customer.EmailAddress)}"": null }} }}",
+                    ExpectedErrors = ["Customer.Name" ,"Customer.EmailAddress"]
                 }
             };
 
             yield return new object[] {
                 new ValidationErrorData()
                 {
-                    Json = $@"{{ ""{nameof(Customer.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(Customer.EmailAddress)}"": null }}",
-                    ExpectedErrors = new Dictionary<string, string[]>
-                    {
-                        { nameof(Customer.EmailAddress), new[] { "The Email field is required." } }
-                    }
+                    Json = @"{ ""customer"": { } }",
+                    ExpectedErrors = ["Customer.Name" ,"Customer.EmailAddress"]
                 }
             };
 
             yield return new object[] {
                 new ValidationErrorData()
                 {
-                    Json =  $@"{{ ""{nameof(Customer.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(Customer.EmailAddress)}"": ""{fixture.Create<string>()}"" }}",
-                    ExpectedErrors = new Dictionary<string, string[]>
-                    {
-                        { nameof(Customer.EmailAddress), ["The Email field is not a valid e-mail address."] }
-                    }
+                    Json = $@"{{ ""customer"": {{ ""{nameof(Customer.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(Customer.EmailAddress)}"": null }} }}",
+                    ExpectedErrors = ["Customer.EmailAddress"]
                 }
             };
 
             yield return new object[] {
                 new ValidationErrorData()
                 {
-                    Json =  $@"{{ ""{nameof(Customer.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(Customer.EmailAddress)}"" : ""valid@example.com"", ""{nameof(Customer.VatNumber)}"": ""{fixture.Create<int>()}""}}",
-                    ExpectedErrors = new Dictionary<string, string[]>
-                    {
-                        { nameof(Customer.VatNumber), ["The field VAT Number must match the regular expression '^[0-9]{9}$'."] }
-                    }
+                    Json =  $@"{{ ""customer"": {{ ""{nameof(Customer.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(Customer.EmailAddress)}"": ""{fixture.Create<string>()}"" }} }}",
+                    ExpectedErrors = ["Customer.EmailAddress"]
+                }
+            };
+
+            yield return new object[] {
+                new ValidationErrorData()
+                {
+                    Json =  $@"{{ ""customer"": {{ ""{nameof(Customer.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(Customer.EmailAddress)}"" : ""valid@example.com"", ""{nameof(Customer.VatNumber)}"": ""{fixture.Create<int>()}"" }} }}",
+                    ExpectedErrors = ["Customer.VatNumber"]
                 }
             };
         }
@@ -172,18 +155,18 @@ namespace RocketStoreApi.Tests
             };
 
             RestRequest request = new RestRequest("api/customers", Method.Post);
-            request.AddJsonBody(customer1);
-            _ = await fixture.RestClient.PostAsync<Guid>(request);
+            request.AddJsonBody(new CreateCustomerRequest(customer1));
+            _ = await fixture.RestClient.PostAsync<CreateCustomerResponse>(request);
 
             // Act
             request = new RestRequest("api/customers", Method.Post);
-            request.AddJsonBody(customer2);
-            var sut = await fixture.RestClient.ExecutePostAsync<Customer>(request);
+            request.AddJsonBody(new CreateCustomerRequest(customer2));
+            var sut = await fixture.RestClient.ExecutePostAsync<CreateCustomerResponse>(request);
 
             // Assert
             ProblemDetails error = await this.GetResponseContentAsync<ProblemDetails>(sut);
             error.Should().NotBeNull();
-            error.Title.Should().Be(ErrorCodes.CustomerAlreadyExists);
+            error.Title.Should().Be(CreateCustomerErrorCodes.CustomerAlreadyExists.ToString());
         }
 
         /// <summary>
@@ -205,26 +188,29 @@ namespace RocketStoreApi.Tests
                 VatNumber = "123456789"
             };
             RestRequest restRequest = new RestRequest("api/customers", Method.Post);
-            restRequest.AddJsonBody(customer);
+            restRequest.AddJsonBody(new CreateCustomerRequest(customer));
 
             // Act
-            var sut = await this.fixture.RestClient.ExecutePostAsync(restRequest);
+            var sut = await this.fixture.RestClient.ExecutePostAsync<CreateCustomerResponse>(restRequest);
 
             // Assert
             sut.StatusCode.Should().Be(HttpStatusCode.Created);
 
-            Guid? id = await this.GetResponseContentAsync<Guid?>(sut);
-            id.Should().NotBeNull();
+            var result = await this.GetResponseContentAsync<CreateCustomerResponse>(sut);
+            result.Should().NotBeNull();
             sut.Headers.Should().Contain(h => h.Name == "Location" && h.Value != null);
         }
 
         #endregion
     }
 
+    /// <summary>
+    /// IXunitSerializable implementation on ValidationErrorData to decompose CreateRequiresNameAndEmailAsync theory tests
+    /// </summary>
     public class ValidationErrorData : IXunitSerializable
     {
         public string Json { get; set; } = default!;
-        public Dictionary<string, string[]> ExpectedErrors { get; set; } = default!;
+        public string[] ExpectedErrors { get; set; } = [];
 
         public void Deserialize(IXunitSerializationInfo info)
         {
@@ -232,7 +218,7 @@ namespace RocketStoreApi.Tests
 
             // Needed for complex types
             var requestJson = info.GetValue<string>(nameof(ExpectedErrors));
-            ExpectedErrors = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string[]>>(requestJson)!;
+            ExpectedErrors = System.Text.Json.JsonSerializer.Deserialize<string[]>(requestJson)!;
         }
 
         public void Serialize(IXunitSerializationInfo info)

@@ -17,16 +17,16 @@ namespace RocketStoreApi.Customers.GetCustomers
             app.MapGet("api/customers/{id}", async (ISender sender, [Required] Guid id) =>
             {
                 var query = new GetCustomerByIdQuery(id);
-                var customers = await sender.Send(query);
+                var customer = await sender.Send(query);
 
-                if (customers == null)
+                if (customer == null)
                 {
                     return Results.NoContent();
                 }
 
-                return Results.Ok(customers);
+                return Results.Ok(customer);
             })
-            .WithName("GetCustomersById")
+            .WithName("GetCustomerById")
             .Produces<List<Customer>>(StatusCodes.Status200OK)
             .Produces<List<Customer>>(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status500InternalServerError)

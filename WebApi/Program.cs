@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RocketStoreApi.Customers.CreateCustomer;
 using RocketStoreApi.Customers.GetCustomers;
 using RocketStoreApi.Managers;
 using RocketStoreApi.Storage;
@@ -45,10 +47,9 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddScoped<ICustomersManager, CustomersManager>();
-
 builder.Services.AddScoped<Profile, MappingProfile>();
 builder.Services.AddControllers();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 var app = builder.Build();
 
@@ -74,6 +75,8 @@ app.MapControllers();
 //Minimal API 
 app.MapGetCustomers();
 app.MapGetCustomersById();
+app.MapCreateCustomer();
+
 
 // Add authorization middleware
 app.UseAuthorization();

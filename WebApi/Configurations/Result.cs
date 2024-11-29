@@ -7,55 +7,30 @@ namespace RocketStoreApi.Managers
     /// Describes the result of an operation.
     /// </summary>
     /// <typeparam name="T">The type of the result value.</typeparam>
-    public partial class Result<T>
+    /// <typeparam name="TErrorCode">The type of the error code used when the operation fails.</typeparam>
+    public partial class Result<T, TErrorCode> where TErrorCode : Enum
     {
         #region Public Properties
 
         /// <summary>
         /// Gets a value indicating whether the result represents a failure.
         /// </summary>
-        public bool Failed
-        {
-            get
-            {
-                return !string.IsNullOrEmpty(this.ErrorCode);
-            }
-        }
+        public bool IsSuccess => Value != null;
 
         /// <summary>
         /// Gets the value.
         /// </summary>
-        public T Value
-        {
-            get;
-            private set;
-        }
+        public T Value { get; private set; } = default!;
 
         /// <summary>
         /// Gets the error.
         /// </summary>
-        public string ErrorCode
-        {
-            get;
-            private set;
-        }
+        public TErrorCode? ErrorCode { get; private set; }
 
         /// <summary>
         /// Gets the error description.
         /// </summary>
-        public string ErrorDescription
-        {
-            get;
-            private set;
-        }
-
-        #endregion
-
-        #region Constructors
-
-        private Result()
-        {
-        }
+        public string ErrorDescription { get; private set; } = default!;
 
         #endregion
 
@@ -69,9 +44,9 @@ namespace RocketStoreApi.Managers
         /// The <see cref="Result{T}" /> instance.
         /// </returns>
         [SuppressMessage("Design", "CA1000:Do not declare static members on generic types", Justification = "By design.")]
-        public static Result<T> Success(T value)
+        public static Result<T, TErrorCode> Success(T value)
         {
-            return new Result<T>()
+            return new Result<T, TErrorCode>
             {
                 Value = value
             };
@@ -86,12 +61,12 @@ namespace RocketStoreApi.Managers
         /// The <see cref="Result{T}" /> instance.
         /// </returns>
         [SuppressMessage("Design", "CA1000:Do not declare static members on generic types", Justification = "By design.")]
-        public static Result<T> Failure(string errorCode, string errorDescription)
+        public static Result<T, TErrorCode> Failure(TErrorCode errorCode, string errorDescription)
         {
             errorCode = errorCode ?? throw new ArgumentNullException(nameof(errorCode));
             errorDescription = errorDescription ?? throw new ArgumentNullException(nameof(errorDescription));
 
-            return new Result<T>()
+            return new Result<T, TErrorCode>()
             {
                 ErrorCode = errorCode,
                 ErrorDescription = errorDescription
@@ -103,9 +78,12 @@ namespace RocketStoreApi.Managers
         /// </summary>
         /// <param name="errorCode">The error code.</param>
         /// <returns>A value indicating whether the result represents a failure with the specified error code.</returns>
-        public bool FailedWith(string errorCode)
+        public bool FailedWith(TErrorCode errorCode)
         {
-            return string.Compare(this.ErrorCode, errorCode, StringComparison.OrdinalIgnoreCase) == 0;
+            if (ErrorCode is null)
+                return false;
+            else
+                return errorCode.Equals(ErrorCode);
         }
 
         #endregion

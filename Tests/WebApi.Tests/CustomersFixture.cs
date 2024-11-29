@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using RestSharp;
-using RocketStoreApi.Controllers;
 using System;
 using System.IO;
 using System.Net.Http;

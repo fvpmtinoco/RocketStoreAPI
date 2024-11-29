@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using FluentValidation;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
@@ -37,5 +38,20 @@ namespace RocketStoreApi.Models
         public string? VatNumber { get; set; }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Validates the <see cref="Customer"/> model.
+    /// This validator ensures that the <see cref="Customer"/> properties are valid
+    /// </summary>
+    public class CustomerValidator : AbstractValidator<Customer>
+    {
+        public CustomerValidator()
+        {
+            RuleFor(x => x.Name).NotNull().NotEmpty();
+            RuleFor(x => x.EmailAddress).NotNull().NotEmpty();
+            RuleFor(x => x.EmailAddress).EmailAddress();
+            RuleFor(x => x.VatNumber).Matches(@"^[0-9]{9}$");
+        }
     }
 }
