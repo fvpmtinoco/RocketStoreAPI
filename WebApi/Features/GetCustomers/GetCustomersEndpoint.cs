@@ -28,7 +28,6 @@ namespace RocketStoreApi.Features.GetCustomers
             .WithOpenApi(op =>
             {
                 op.Summary = "Get all customers";
-                op.Description = "Return all customers";
                 return op;
             })
             .WithTags("Customers");

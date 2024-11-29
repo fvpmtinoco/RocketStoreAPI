@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RocketStoreApi.Features.CreateCustomer;
+using RocketStoreApi.Features.DeleteCustomer;
 using RocketStoreApi.Features.GetCustomers;
 using RocketStoreApi.Storage;
 
@@ -73,7 +74,7 @@ app.MapControllers();
 app.MapGetCustomers();
 app.MapGetCustomersById();
 app.MapCreateCustomer();
-
+app.MapDeleteCustomer();
 
 // Add authorization middleware
 app.UseAuthorization();

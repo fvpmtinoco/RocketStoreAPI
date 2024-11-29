@@ -9,16 +9,17 @@ using System.Threading.Tasks;
 
 namespace RocketStoreApi.Features.GetCustomers
 {
-    public class GetCustomersQuery(string? name, string? email) : IQuery<IEnumerable<Customer>>
+    public record GetCustomersResult(Customer Customer);
+
+    public class GetCustomersQuery(string? name, string? email) : IQuery<IEnumerable<GetCustomersResult>>
     {
         public readonly string? Name = name;
         public readonly string? Email = email;
     }
 
-    public class GetCustomersQueryHandler(ApplicationDbContext context) : IQueryHandler<GetCustomersQuery, IEnumerable<Customer>>
+    public class GetCustomersQueryHandler(ApplicationDbContext context) : IQueryHandler<GetCustomersQuery, IEnumerable<GetCustomersResult>>
     {
-        private readonly ApplicationDbContext context = context;
-        public async Task<IEnumerable<Customer>> Handle(GetCustomersQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<GetCustomersResult>> Handle(GetCustomersQuery request, CancellationToken cancellationToken)
         {
             var query = context.Customers.AsQueryable();
 
@@ -31,7 +32,8 @@ namespace RocketStoreApi.Features.GetCustomers
                 query = query.Where(c => c.Email.Contains(request.Email.ToLowerInvariant()));
 
             // Execute the query and return the result
-            return await query.ToListAsync(cancellationToken);
+            var result = await query.ToListAsync(cancellationToken);
+            return result.Select(c => new GetCustomersResult(c));
         }
     }
 }

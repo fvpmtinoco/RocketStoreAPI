@@ -9,15 +9,16 @@ using System.Threading.Tasks;
 
 namespace RocketStoreApi.Features.GetCustomers
 {
-    public class GetCustomerByIdQuery(Guid id) : IQuery<Customer?>
+    public record GetCustomerByIdResult(Customer? Customer);
+
+    public class GetCustomerByIdQuery(Guid id) : IQuery<GetCustomerByIdResult>
     {
         public readonly Guid Id = id;
     }
 
-    public class GetCustomerByIdQueryHandler(ApplicationDbContext context) : IQueryHandler<GetCustomerByIdQuery, Customer?>
+    public class GetCustomerByIdQueryHandler(ApplicationDbContext context) : IQueryHandler<GetCustomerByIdQuery, GetCustomerByIdResult>
     {
-        private readonly ApplicationDbContext context = context;
-        public async Task<Customer?> Handle(GetCustomerByIdQuery request, CancellationToken cancellationToken)
+        public async Task<GetCustomerByIdResult> Handle(GetCustomerByIdQuery request, CancellationToken cancellationToken)
         {
             var query = context.Customers.AsQueryable();
 
@@ -25,7 +26,7 @@ namespace RocketStoreApi.Features.GetCustomers
 
             var customer = await query.SingleOrDefaultAsync(cancellationToken);
 
-            return customer;
+            return new GetCustomerByIdResult(customer);
         }
     }
 }

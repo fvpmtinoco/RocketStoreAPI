@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RocketStoreApi.Configurations;
 using RocketStoreApi.CQRS;
 using RocketStoreApi.Database.Entities;
-using RocketStoreApi.Managers;
 using RocketStoreApi.Storage;
 using System;
 using System.Threading;
@@ -15,8 +15,6 @@ namespace RocketStoreApi.Features.CreateCustomer
 
     public class CreateCustomerHandler(ApplicationDbContext context, ILogger<CreateCustomerHandler> logger) : ICommandHandler<CreateCustomerCommand, Result<CreateCustomerResult, CreateCustomerErrorCodes>>
     {
-        private readonly ILogger<CreateCustomerHandler> logger = logger;
-
         public async Task<Result<CreateCustomerResult, CreateCustomerErrorCodes>> Handle(CreateCustomerCommand command, CancellationToken cancellationToken)
         {
             Customer entity = new Database.Entities.Customer

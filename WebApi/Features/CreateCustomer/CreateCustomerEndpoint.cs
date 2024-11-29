@@ -40,16 +40,14 @@ namespace RocketStoreApi.Features.CreateCustomer
                 var result = await sender.Send(command);
 
                 if (result.IsSuccess)
-                {
                     return Results.Created($"api/customers/{result.Value.Id}", new CreateCustomerResponse(result.Value.Id));
-                }
                 else
                 {
                     // Error handling - return detailed error responses based on the result's error code
                     var problemDetails = new ProblemDetails
                     {
-                        Title = result.ErrorCode.ToString(), // You can use the error code enum value as a string
-                        Detail = result.ErrorDescription, // Provide the error description from the result
+                        Title = result.ErrorCode.ToString(),
+                        Detail = result.ErrorDescription,
                     };
 
                     if (result.ErrorCode == CreateCustomerErrorCodes.CustomerAlreadyExists)
@@ -72,7 +70,6 @@ namespace RocketStoreApi.Features.CreateCustomer
             .WithOpenApi(op =>
             {
                 op.Summary = "Create a new customer";
-                op.Description = "Create a customer";
                 return op;
             })
             .WithTags("Customers");

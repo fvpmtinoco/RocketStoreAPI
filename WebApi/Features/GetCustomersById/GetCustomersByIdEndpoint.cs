@@ -20,9 +20,7 @@ namespace RocketStoreApi.Features.GetCustomers
                 var customer = await sender.Send(query);
 
                 if (customer == null)
-                {
                     return Results.NoContent();
-                }
 
                 return Results.Ok(customer);
             })
@@ -33,7 +31,6 @@ namespace RocketStoreApi.Features.GetCustomers
             .WithOpenApi(op =>
             {
                 op.Summary = "Get customer by id";
-                op.Description = "Return a customer";
                 return op;
             })
             .WithTags("Customers");
