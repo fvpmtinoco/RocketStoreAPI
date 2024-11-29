@@ -36,7 +36,7 @@ namespace RocketStoreApi.Features.CreateCustomer
                     return Results.ValidationProblem(validationResult.ToDictionary());
                 }
 
-                var command = new CreateCustomerCommand(request.Customer.Name, request.Customer.EmailAddress, request.Customer.VatNumber);
+                var command = new CreateCustomerCommand(request.Customer.Name, request.Customer.EmailAddress, request.Customer.VatNumber, request.Customer.Address);
                 var result = await sender.Send(command);
 
                 if (result.IsSuccess)

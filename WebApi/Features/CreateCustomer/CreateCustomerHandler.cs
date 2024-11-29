@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RocketStoreApi.Features.CreateCustomer
 {
-    public record CreateCustomerCommand(string Name, string EmailAddress, string? VatNumber) : ICommand<Result<CreateCustomerResult, CreateCustomerErrorCodes>>;
+    public record CreateCustomerCommand(string Name, string EmailAddress, string? VatNumber, string? Address) : ICommand<Result<CreateCustomerResult, CreateCustomerErrorCodes>>;
     public record CreateCustomerResult(Guid Id);
 
     public class CreateCustomerHandler(ApplicationDbContext context, ILogger<CreateCustomerHandler> logger) : ICommandHandler<CreateCustomerCommand, Result<CreateCustomerResult, CreateCustomerErrorCodes>>
@@ -21,7 +21,8 @@ namespace RocketStoreApi.Features.CreateCustomer
             {
                 Name = command.Name,
                 Email = command.EmailAddress,
-                VatNumber = command.VatNumber
+                VatNumber = command.VatNumber,
+                Address = command.Address
             };
 
             // Check if the customer already exists

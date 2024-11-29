@@ -37,6 +37,13 @@ namespace RocketStoreApi.SharedModels
         [JsonPropertyName("vatNumber")]
         public string? VatNumber { get; set; }
 
+        /// <summary>
+        /// Gets or sets the customer address.
+        /// </summary>
+        [DisplayName("Address")]
+        [JsonPropertyName("address")]
+        public string? Address { get; set; }
+
         #endregion
     }
 

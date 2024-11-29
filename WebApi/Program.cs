@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RocketStoreApi.Configurations;
+using RocketStoreApi.CQRS;
 using RocketStoreApi.Features.CreateCustomer;
 using RocketStoreApi.Features.DeleteCustomer;
 using RocketStoreApi.Features.GetCustomers;
@@ -47,7 +49,16 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddControllers();
+
+// Fluent validation DI
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
+// Register IHttpClientFactory
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IQueryHandler<GetCustomerByIdQuery, GetCustomerByIdResult>, GetCustomerByIdQueryHandler>();
+
+// Register AppSettings
+builder.Services.Configure<AppSettings>(builder.Configuration);
 
 var app = builder.Build();
 

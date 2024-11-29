@@ -29,6 +29,11 @@ namespace RocketStoreApi.Database.Entities
         /// </summary>
         public string? VatNumber { get; set; }
 
+        /// <summary>
+        /// Gets or sets the customer's address.
+        /// </summary>
+        public string? Address { get; set; }
+
         #endregion
     }
 }
