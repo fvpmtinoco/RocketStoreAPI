@@ -25,7 +25,8 @@ The following steps were taken to implement key architectural patterns and impro
 2. Used FluentValidation to replicate the validations that existed in the Customer model.
 3. Refactored project folder structure
 4. Added Docker support
-5. Implemented US04
+5. Implemented US04 & US05
+6. Mapped appsettings to records in order to inject them and read external API settings
 
 
 
