@@ -52,8 +52,8 @@ namespace RocketStoreApi.Tests.Configurations
                     builder.ConfigureAppConfiguration((context, config) =>
                     {
                         config.SetBasePath(Directory.GetCurrentDirectory())
-                              .AddJsonFile("appsettings.json")
-                              .AddJsonFile("appsettings.Development.json")
+                              .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                              .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
                               .AddEnvironmentVariables();
                     });
 
