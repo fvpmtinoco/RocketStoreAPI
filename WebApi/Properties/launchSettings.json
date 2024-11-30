@@ -21,12 +21,12 @@
     "Container (Dockerfile)": {
       "commandName": "Docker",
       "launchBrowser": true,
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
+      "launchUrl": "https://localhost:6060/swagger",
       "environmentVariables": {
-        "ASPNETCORE_HTTPS_PORTS": "8081",
-        "ASPNETCORE_HTTP_PORTS": "8080"
+        "ASPNETCORE_HTTPS_PORTS": "6060",
+        "ASPNETCORE_HTTP_PORTS": "6000"
       },
-      "publishAllPorts": true,
+      "dockerFileRunArguments": "--publish 6000:6000 --publish 6060:6060", // Explicit port mapping
       "useSSL": true
     }
   },

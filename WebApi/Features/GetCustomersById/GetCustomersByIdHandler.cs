@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RocketStoreApi.Configurations;
@@ -27,7 +27,7 @@ namespace RocketStoreApi.Features.GetCustomers
         public int SlidingExpirationInMinutes => 30;
     }
 
-    internal class GetCustomerByIdQueryHandler(ApplicationDbContext context, IMemoryCache cache, IHttpClientFactory httpClientFactory, IOptions<AppSettings> appSettings, IPositionStackService positionStackService) : IQueryHandler<GetCustomerByIdQuery, Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>>
+    internal class GetCustomerByIdQueryHandler(ApplicationDbContext context, IHttpClientFactory httpClientFactory, IOptions<AppSettings> appSettings, IPositionStackService positionStackService, ILogger<GetCustomerByIdQueryHandler> logger) : IQueryHandler<GetCustomerByIdQuery, Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>>
     {
         public async Task<Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>> Handle(GetCustomerByIdQuery request, CancellationToken cancellationToken)
         {
@@ -54,6 +54,7 @@ namespace RocketStoreApi.Features.GetCustomers
 
                 if (!apiResult.IsSuccess)
                 {
+                    logger.LogWarning($"Error retrieving geolocalization for customer '{customer.Id}' with address '{customer.Address}'");
                     return Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>.Failure(
                         GetCustomersByIdErrorCodes.ApiError,
                         apiResult.ErrorDescription
