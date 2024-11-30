@@ -1,16 +1,20 @@
+## Assumptions
+1. The API will not grow much more in terms of functionalities (maybe an endpoint for customer update)
+
+## Changelog
 The following steps were taken to implement key architectural patterns and improve the organization of the codebase. The migration to .NET 8 included moving from Startup.cs to Program.cs for application configuration. 
 - The CQRS and Mediator patterns were implemented to separate concerns and manage command/query logic. 
-- Additionally, the Vertical Slice Architecture (VSA) pattern was applied because the API is presumably expected to be a microservice and will not grow much larger, avoiding the boilerplate code typically present in Clean Architecture. While Clean Architecture is a great choice for more complex APIs, VSA offers a simpler, more focused approach for smaller, feature-specific services, without neglecting the separation of concerns. These changes help improve the structure, clarity, and maintainability of the application.
-- RestSharp was integrated in test library for easier handling of HTTP requests, as it abstracts much of the HTTP request handling, eliminating the need for custom Get and Post methods.
+- Additionally, the Vertical Slice Architecture (VSA) pattern was applied assumption nº 1, avoiding the boilerplate code typically present in Clean Architecture. While Clean Architecture is a great choice for more complex APIs, VSA offers a simpler, more focused approach for smaller services, without neglecting the separation of concerns. These changes help improve the structure and clarity of the application.
+- RestSharp was integrated in test project for easier handling of HTTP requests, as it abstracts much of the HTTP request handling, eliminating the need for custom Get and Post methods.
 - FluentValidation (https://docs.fluentvalidation.net/en/latest/aspnet.html#minimal-apis) was used to handle model validation explicitly, as minimal APIs don't provide automatic validation like traditional controllers
 - Simple implementation of caching with IMemoryCache to reduce external API calls and avoid hitting rate limits. Injected into the MediatR pipeline behavior for efficient caching management. Invalidation occurs on deletion of the customer
-
 
 ## Improvements not addressed due to lack of time
 1. Cache concurrency issues are not fully addressed in the current implementation. Using libraries like LazyCache or similar could offer a more resilient solution for handling concurrent cache access and updates.
 2. Concurrency issues related to create/delete operations are not addressed in this implementation. Synchronization mechanisms like locking or optimistic concurrency should be considered in a real world scenario
 3. The usage of higher-level abstraction to simplify the process of declaring endpoints and organizing them in a more modular way. Extension methods for WebApplication were used, but recurring to Carter modules (https://github.com/CarterCommunity/Carter) would have avoided some boilerplate code in Program.cs
 
+## Detailed changelog
 ### Steps 27/11/2024:
 1. Fixed compilation errors.
 2. Fixed integration tests.
