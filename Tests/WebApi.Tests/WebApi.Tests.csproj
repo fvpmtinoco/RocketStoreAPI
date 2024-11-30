@@ -5,16 +5,10 @@
         <AssemblyName>RocketStoreApi.Tests</AssemblyName>
         <RootNamespace>RocketStoreApi.Tests</RootNamespace>
         <IsPackable>false</IsPackable>
-    </PropertyGroup>
-
-    <PropertyGroup>
-      <NoWarn>$(NoWarn);CA1062</NoWarn>
-      <NoWarn>$(NoWarn);CS1591</NoWarn>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <PreserveCompilationContext>true</PreserveCompilationContext>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+        <NoWarn>CA1062;1701;1702;CA2007;IDE0008</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,6 +16,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.11" />
         <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.12.19" PrivateAssets="All" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+        <PackageReference Include="Moq" Version="4.20.72" />
+        <PackageReference Include="Moq.EntityFrameworkCore" Version="8.0.1.2" />
         <PackageReference Include="RestSharp" Version="112.1.0" />
         <PackageReference Include="xunit" Version="2.9.2" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" PrivateAssets="All" />

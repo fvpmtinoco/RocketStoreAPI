@@ -1,14 +1,14 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using RocketStoreApi.SharedModels;
+using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace RocketStoreApi.Features.GetCustomers
 {
-    public record GetCustomersByIdResponse(Customer Customer);
+    public record GetCustomersByIdResponse(CustomerAddressDetail Customer);
 
     public static class GetCustomersByIdEndpoint
     {
@@ -17,16 +17,24 @@ namespace RocketStoreApi.Features.GetCustomers
             app.MapGet("api/customers/{id}", async (ISender sender, [Required] Guid id) =>
             {
                 var query = new GetCustomerByIdQuery(id);
-                var customer = await sender.Send(query);
+                var result = await sender.Send(query);
 
-                if (customer == null)
-                    return Results.NoContent();
+                if (result.IsSuccess)
+                    return Results.Ok(result.Value);
 
-                return Results.Ok(customer);
+                // Error handling - return detailed error responses based on the result's error code
+                if (result.ErrorCode == GetCustomersByIdErrorCodes.InvalidCustomer)
+                {
+                    // NotFound (404) when the customer does not exist
+                    return Results.NotFound(new ProblemDetails { Title = result.ErrorCode.ToString(), Detail = result.ErrorDescription });
+                }
+
+                // Generic Bad Request (400) for other errors
+                return Results.BadRequest();
             })
             .WithName("GetCustomerById")
-            .Produces<List<Customer>>(StatusCodes.Status200OK)
-            .Produces<List<Customer>>(StatusCodes.Status204NoContent)
+            .Produces<CustomerAddressDetail>(StatusCodes.Status200OK)
+            .Produces<CustomerAddressDetail>(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithOpenApi(op =>
             {
@@ -35,5 +43,13 @@ namespace RocketStoreApi.Features.GetCustomers
             })
             .WithTags("Customers");
         }
+    }
+
+    public enum GetCustomersByIdErrorCodes
+    {
+        [Description("The customer is invalid")]
+        InvalidCustomer,
+        [Description("Error calling PositionStack API")]
+        ApiError
     }
 }

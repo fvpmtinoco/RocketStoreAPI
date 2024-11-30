@@ -10,7 +10,7 @@ namespace RocketStoreApi.Features.GetCustomers
     /// Response object for GetCustomers
     /// </summary>
     /// <param name="Customers"></param>
-    public record GetCustomersResponse(List<Customer> Customers);
+    public record GetCustomersResponse(List<CustomerDTO> Customers);
 
     public static class GetCustomersEndpoint
     {
@@ -19,11 +19,11 @@ namespace RocketStoreApi.Features.GetCustomers
             app.MapGet("api/customers", async (ISender sender, string? name, string? email) =>
             {
                 var query = new GetCustomersQuery(name, email);
-                var customers = await sender.Send(query);
-                return Results.Ok(customers);
+                var result = await sender.Send(query);
+                return Results.Ok(new GetCustomersResponse(result.Customers));
             })
             .WithName("GetCustomers")
-            .Produces<List<Customer>>(StatusCodes.Status200OK)
+            .Produces<List<CustomerDTO>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithOpenApi(op =>
             {

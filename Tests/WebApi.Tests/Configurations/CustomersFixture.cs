@@ -7,7 +7,7 @@ using System.IO;
 using System.Net.Http;
 using Xunit;
 
-namespace RocketStoreApi.Tests
+namespace RocketStoreApi.Tests.Configurations
 {
     /// <summary>
     /// Defines a test fixture used to test the <see cref="CustomersController"/>.
@@ -53,6 +53,7 @@ namespace RocketStoreApi.Tests
                     {
                         config.SetBasePath(Directory.GetCurrentDirectory())
                               .AddJsonFile("appsettings.json")
+                              .AddJsonFile("appsettings.Development.json")
                               .AddEnvironmentVariables();
                     });
 
@@ -76,7 +77,7 @@ namespace RocketStoreApi.Tests
         /// <inheritdoc />
         public void Dispose()
         {
-            this.Dispose(disposing: true);
+            Dispose(disposing: true);
         }
 
         #endregion
@@ -85,27 +86,27 @@ namespace RocketStoreApi.Tests
 
         private void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (!disposed)
             {
                 if (disposing)
                 {
-                    if (this.client != null)
+                    if (client != null)
                     {
-                        this.client.Dispose();
+                        client.Dispose();
                     }
 
-                    if (this.Server != null)
+                    if (Server != null)
                     {
-                        this.Server.Dispose();
+                        Server.Dispose();
                     }
 
-                    if (this.RestClient != null)
+                    if (RestClient != null)
                     {
-                        this.RestClient = null;
+                        RestClient = null;
                     }
                 }
 
-                this.disposed = true;
+                disposed = true;
             }
         }
 

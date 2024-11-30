@@ -15,7 +15,7 @@ namespace RocketStoreApi.Configurations
         /// <summary>
         /// Gets a value indicating whether the result represents a failure.
         /// </summary>
-        public bool IsSuccess => Value != null;
+        public bool IsSuccess { get; init; }
 
         /// <summary>
         /// Gets the value.
@@ -48,6 +48,7 @@ namespace RocketStoreApi.Configurations
         {
             return new Result<T, TErrorCode>
             {
+                IsSuccess = true,
                 Value = value
             };
         }
@@ -68,6 +69,7 @@ namespace RocketStoreApi.Configurations
 
             return new Result<T, TErrorCode>()
             {
+                IsSuccess = false,
                 ErrorCode = errorCode,
                 ErrorDescription = errorDescription
             };

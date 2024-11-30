@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 
 namespace RocketStoreApi.Features.DeleteCustomer
 {
@@ -21,22 +20,15 @@ namespace RocketStoreApi.Features.DeleteCustomer
                     return Results.NoContent();
 
                 // Error handling - return detailed error responses based on the result's error code
-                var problemDetails = new ProblemDetails
-                {
-                    Title = result.ErrorCode.ToString(),
-                    Detail = result.ErrorDescription,
-                };
-
                 if (result.ErrorCode == DeleteCustomerErrorCodes.InvalidCustomer)
                 {
                     // NotFound (404) when the customer does not exist
-                    problemDetails.Status = (int)HttpStatusCode.Conflict;
-                    return Results.NotFound(problemDetails);
+                    return Results.NotFound(new ProblemDetails { Title = result.ErrorCode.ToString(), Detail = result.ErrorDescription });
                 }
 
                 // Generic Bad Request (400) for other errors
-                problemDetails.Status = (int)HttpStatusCode.BadRequest;
-                return Results.BadRequest(problemDetails);
+                return Results.BadRequest();
+
             }).WithName("DeleteCustomer")
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound)
@@ -53,7 +45,7 @@ namespace RocketStoreApi.Features.DeleteCustomer
 
     public enum DeleteCustomerErrorCodes
     {
-        [Description("The customer doesn't exist")]
+        [Description("The customer is invalid")]
         InvalidCustomer
     }
 }

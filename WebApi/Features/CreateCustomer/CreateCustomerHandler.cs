@@ -20,7 +20,7 @@ namespace RocketStoreApi.Features.CreateCustomer
             Customer entity = new Database.Entities.Customer
             {
                 Name = command.Name,
-                Email = command.EmailAddress,
+                Email = command.EmailAddress.ToLowerInvariant(),
                 VatNumber = command.VatNumber,
                 Address = command.Address
             };

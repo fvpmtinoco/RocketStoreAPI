@@ -8,7 +8,7 @@ namespace RocketStoreApi.SharedModels
     /// <summary>
     /// Defines a customer.
     /// </summary>
-    public partial class Customer
+    public partial class CustomerDTO
     {
         #region Public Properties
 
@@ -48,10 +48,10 @@ namespace RocketStoreApi.SharedModels
     }
 
     /// <summary>
-    /// Validates the <see cref="Customer"/> model.
-    /// This validator ensures that the <see cref="Customer"/> properties are valid
+    /// Validates the <see cref="CustomerDTO"/> model.
+    /// This validator ensures that the <see cref="CustomerDTO"/> properties are valid
     /// </summary>
-    public class CustomerValidator : AbstractValidator<Customer>
+    public class CustomerValidator : AbstractValidator<CustomerDTO>
     {
         public CustomerValidator()
         {

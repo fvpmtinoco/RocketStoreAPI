@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using RestSharp;
 using RocketStoreApi.Features.CreateCustomer;
 using RocketStoreApi.SharedModels;
+using RocketStoreApi.Tests.Configurations;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -13,67 +14,29 @@ using Xunit.Abstractions;
 namespace RocketStoreApi.Tests
 {
     [Collection("CustomersAPI")]
-    public partial class CustomersControllerTests(CustomersFixture fixture) : TestsBase, IClassFixture<CustomersFixture>
+    public partial class CreateCustomerShould(CustomersFixture costumersFixture) : TestsBase(costumersFixture), IClassFixture<CustomersFixture>
     {
-        // Ignore Spelling: api
-
-
-        #region Fields
-
-        private readonly CustomersFixture fixture = fixture;
-
-        #endregion
-
         #region Test Methods
 
-        #region GetCustomersEndpoint
-
-        //[Fact]
-        //public async Task GetCustomersAsync()
-        //{
-        //    // Arrange
-
-        //    IDictionary<string, string[]> expectedErrors = new Dictionary<string, string[]>
-        //    {
-        //        { "Name", new string[] { "The Name field is required." } },
-        //        { "EmailAddress", new string[] { "The Email field is required." } }
-        //    };
-
-        //    Customer customer = new Customer();
-
-        //    // Act
-
-        //    HttpResponseMessage httpResponse = await this.fixture.GetAsync("api/customers");
-
-        //    // Assert
-
-        //    httpResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        //    ValidationProblemDetails error = await this.GetResponseContentAsync<ValidationProblemDetails>(httpResponse);
-        //    error.Should().NotBeNull();
-        //    error.Errors.Should().BeEquivalentTo(expectedErrors);
-        //}
-
-        #endregion
+        private readonly CustomersFixture costumersFixture = costumersFixture;
 
         /// <summary>
-        /// Tests the <see cref="CustomersController.CreateCustomerAsync(Customer)"/> method
-        /// to ensure that it requires name and email.
+        /// Tests the CreateCustomer feature to ensure endpoint parameters are valid
         /// </summary>
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation.
         /// </returns>
         [Theory]
-        [MemberData(nameof(CreateRequiresNameAndEmailData))]
+        [MemberData(nameof(EnsureContractIsRespectedData))]
 
-        public async Task CreateRequiresNameAndEmailAsync(ValidationErrorData validationErrorData)
+        public async Task EnsureContractIsRespected(CreateCustomerValidationErrorData validationErrorData)
         {
             // Arrange
             RestRequest request = new RestRequest("api/customers", Method.Post);
             request.AddJsonBody(validationErrorData.Json);
 
             // Act
-            var sut = await this.fixture.RestClient.ExecutePostAsync(request);
+            var sut = await costumersFixture.RestClient.ExecutePostAsync(request);
 
             // Assert
             sut.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -83,53 +46,58 @@ namespace RocketStoreApi.Tests
             error.Errors.Keys.Should().BeEquivalentTo(validationErrorData.ExpectedErrors);
         }
 
-        public static IEnumerable<object[]> CreateRequiresNameAndEmailData()
+        public static IEnumerable<object[]> EnsureContractIsRespectedData()
         {
             Fixture fixture = new();
 
             yield return new object[] {
-                new ValidationErrorData()
+                new CreateCustomerValidationErrorData()
                 {
-                    Json = $@"{{ ""customer"": {{ ""{nameof(Customer.Name)}"" : null, ""{nameof(Customer.EmailAddress)}"": null }} }}",
-                    ExpectedErrors = ["Customer.Name" ,"Customer.EmailAddress"]
+                    Json = $@"{{ ""customer"": {{ ""{nameof(CustomerDTO.Name)}"" : null, ""{nameof(CustomerDTO.EmailAddress)}"": null }} }}",
+                    ExpectedErrors = ["Customer.Name" ,"Customer.EmailAddress"],
+                    TestDescription = "Name and Email are null"
                 }
             };
 
             yield return new object[] {
-                new ValidationErrorData()
+                new CreateCustomerValidationErrorData()
                 {
                     Json = @"{ ""customer"": { } }",
-                    ExpectedErrors = ["Customer.Name" ,"Customer.EmailAddress"]
+                    ExpectedErrors = ["Customer.Name" ,"Customer.EmailAddress"],
+                    TestDescription = "Request is empty"
                 }
             };
 
             yield return new object[] {
-                new ValidationErrorData()
+                new CreateCustomerValidationErrorData()
                 {
-                    Json = $@"{{ ""customer"": {{ ""{nameof(Customer.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(Customer.EmailAddress)}"": null }} }}",
-                    ExpectedErrors = ["Customer.EmailAddress"]
+                    Json = $@"{{ ""customer"": {{ ""{nameof(CustomerDTO.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(CustomerDTO.EmailAddress)}"": null }} }}",
+                    ExpectedErrors = ["Customer.EmailAddress"],
+                    TestDescription = "Email is null"
                 }
             };
 
             yield return new object[] {
-                new ValidationErrorData()
+                new CreateCustomerValidationErrorData()
                 {
-                    Json =  $@"{{ ""customer"": {{ ""{nameof(Customer.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(Customer.EmailAddress)}"": ""{fixture.Create<string>()}"" }} }}",
-                    ExpectedErrors = ["Customer.EmailAddress"]
+                    Json =  $@"{{ ""customer"": {{ ""{nameof(CustomerDTO.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(CustomerDTO.EmailAddress)}"": ""{fixture.Create<string>()}"" }} }}",
+                    ExpectedErrors = ["Customer.EmailAddress"],
+                    TestDescription = "Email is invalid"
                 }
             };
 
             yield return new object[] {
-                new ValidationErrorData()
+                new CreateCustomerValidationErrorData()
                 {
-                    Json =  $@"{{ ""customer"": {{ ""{nameof(Customer.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(Customer.EmailAddress)}"" : ""valid@example.com"", ""{nameof(Customer.VatNumber)}"": ""{fixture.Create<int>()}"" }} }}",
-                    ExpectedErrors = ["Customer.VatNumber"]
+                    Json =  $@"{{ ""customer"": {{ ""{nameof(CustomerDTO.Name)}"" : ""{fixture.Create<string>()}"", ""{nameof(CustomerDTO.EmailAddress)}"" : ""valid@example.com"", ""{nameof(CustomerDTO.VatNumber)}"": ""{fixture.Create<int>()}"" }} }}",
+                    ExpectedErrors = ["Customer.VatNumber"],
+                    TestDescription = "VAT number is invalid"
                 }
             };
         }
 
         /// <summary>
-        /// Tests the <see cref="CustomersController.CreateCustomerAsync(Customer)"/> method
+        /// Tests the <see cref="CustomersController.CreateCustomerAsync(CustomerDTO)"/> method
         /// to ensure that it requires a unique email address.
         /// </summary>
         /// <returns>
@@ -139,13 +107,13 @@ namespace RocketStoreApi.Tests
         public async Task CreateRequiresUniqueEmailAsync()
         {
             // Arrange
-            Customer customer1 = new Customer()
+            CustomerDTO customer1 = new CustomerDTO()
             {
                 Name = "A customer",
                 EmailAddress = "customer@server.pt"
             };
 
-            Customer customer2 = new Customer()
+            CustomerDTO customer2 = new CustomerDTO()
             {
                 Name = "Another customer",
                 EmailAddress = "customer@server.pt"
@@ -153,12 +121,12 @@ namespace RocketStoreApi.Tests
 
             RestRequest request = new RestRequest("api/customers", Method.Post);
             request.AddJsonBody(new CreateCustomerRequest(customer1));
-            _ = await fixture.RestClient.PostAsync<CreateCustomerResponse>(request);
+            _ = await costumersFixture.RestClient.PostAsync<CreateCustomerResponse>(request);
 
             // Act
             request = new RestRequest("api/customers", Method.Post);
             request.AddJsonBody(new CreateCustomerRequest(customer2));
-            var sut = await fixture.RestClient.ExecutePostAsync<CreateCustomerResponse>(request);
+            var sut = await costumersFixture.RestClient.ExecutePostAsync<CreateCustomerResponse>(request);
 
             // Assert
             ProblemDetails error = await this.GetResponseContentAsync<ProblemDetails>(sut);
@@ -167,7 +135,7 @@ namespace RocketStoreApi.Tests
         }
 
         /// <summary>
-        /// Tests the <see cref="CustomersController.CreateCustomerAsync(Customer)"/> method
+        /// Tests the <see cref="CustomersController.CreateCustomerAsync(CustomerDTO)"/> method
         /// to ensure that it requires a valid VAT number.
         /// </summary>
         /// <returns>
@@ -178,7 +146,7 @@ namespace RocketStoreApi.Tests
         {
             // Arrange
 
-            Customer customer = new Customer()
+            CustomerDTO customer = new CustomerDTO()
             {
                 Name = "My customer",
                 EmailAddress = "mycustomer@server.pt",
@@ -188,7 +156,7 @@ namespace RocketStoreApi.Tests
             restRequest.AddJsonBody(new CreateCustomerRequest(customer));
 
             // Act
-            var sut = await this.fixture.RestClient.ExecutePostAsync<CreateCustomerResponse>(restRequest);
+            var sut = await costumersFixture.RestClient.ExecutePostAsync<CreateCustomerResponse>(restRequest);
 
             // Assert
             sut.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -204,14 +172,15 @@ namespace RocketStoreApi.Tests
     /// <summary>
     /// IXunitSerializable implementation on ValidationErrorData to decompose CreateRequiresNameAndEmailAsync theory tests
     /// </summary>
-    public class ValidationErrorData : IXunitSerializable
+    public class CreateCustomerValidationErrorData : TestCaseBase, IXunitSerializable
     {
         public string Json { get; set; } = default!;
         public string[] ExpectedErrors { get; set; } = [];
 
         public void Deserialize(IXunitSerializationInfo info)
         {
-            Json = info.GetValue<string>("Json");
+            Json = info.GetValue<string>(nameof(Json));
+            TestDescription = info.GetValue<string>(nameof(TestDescription));
 
             // Needed for complex types
             var requestJson = info.GetValue<string>(nameof(ExpectedErrors));
@@ -220,11 +189,15 @@ namespace RocketStoreApi.Tests
 
         public void Serialize(IXunitSerializationInfo info)
         {
-            info.AddValue("Json", Json);
+            info.AddValue(nameof(Json), Json);
+            info.AddValue(nameof(TestDescription), TestDescription);
 
             // Needed for complex types
             var requestJson = System.Text.Json.JsonSerializer.Serialize(ExpectedErrors);
             info.AddValue(nameof(ExpectedErrors), requestJson);
         }
+
+        // Override ToString to return the description
+        //public override string ToString() => TestDescription;
     }
 }

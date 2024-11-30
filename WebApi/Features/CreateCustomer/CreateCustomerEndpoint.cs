@@ -15,7 +15,7 @@ namespace RocketStoreApi.Features.CreateCustomer
     /// Represents a request to create a new customer.
     /// </summary>
     /// <param name="Customer"></param>
-    public record CreateCustomerRequest(Customer Customer);
+    public record CreateCustomerRequest(CustomerDTO Customer);
 
     /// <summary>
     /// Represents a response to a successful creation of a new customer.
@@ -85,7 +85,7 @@ namespace RocketStoreApi.Features.CreateCustomer
     /// <summary>
     /// Validates the <see cref="CreateCustomerRequest"/> model.
     /// This validator ensures that the properties of the request are valid, 
-    /// including delegating validation of the nested <see cref="Customer"/> object 
+    /// including delegating validation of the nested <see cref="CustomerDTO"/> object 
     /// to the <see cref="CustomerValidator"/>.
     /// </summary>
     public class CreateCustomerRequestValidator : AbstractValidator<CreateCustomerRequest>

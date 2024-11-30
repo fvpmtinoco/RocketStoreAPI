@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RocketStoreApi.Configurations;
 using RocketStoreApi.CQRS;
+using RocketStoreApi.Features.GetCustomersById;
 using RocketStoreApi.Storage;
 using System;
 using System.Collections.Generic;
@@ -15,53 +16,59 @@ namespace RocketStoreApi.Features.GetCustomers
 {
     public record GetCustomerByIdResult(CustomerAddressDetail? Customer);
 
-    public class GetCustomerByIdQuery(Guid id) : IQuery<GetCustomerByIdResult>
+    public class GetCustomerByIdQuery(Guid id) : IQuery<Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>>
     {
         public readonly Guid Id = id;
     }
 
-    public class GetCustomerByIdQueryHandler(ApplicationDbContext context, IHttpClientFactory httpClientFactory, IOptions<AppSettings> appSettings) : IQueryHandler<GetCustomerByIdQuery, GetCustomerByIdResult>
+    public class GetCustomerByIdQueryHandler(ApplicationDbContext context, IHttpClientFactory httpClientFactory, IOptions<AppSettings> appSettings, IPositionStackService positionStackService) : IQueryHandler<GetCustomerByIdQuery, Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>>
     {
-        public async Task<GetCustomerByIdResult> Handle(GetCustomerByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>> Handle(GetCustomerByIdQuery request, CancellationToken cancellationToken)
         {
-            var httpClient = httpClientFactory.CreateClient();
             var query = context.Customers.AsQueryable();
-
             query = query.Where(c => c.Id == request.Id);
 
             var customer = await query.SingleOrDefaultAsync(cancellationToken);
 
             if (customer is null)
-                throw new Exception("To implement error handling in a graceful manner");
+                return Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>.Failure(GetCustomersByIdErrorCodes.InvalidCustomer, $"The customer with id {request.Id} is invalid");
 
             PositionStackResponse? positionStackResponse = null;
 
             // Check if the customer has an address before making the API call
             if (!string.IsNullOrWhiteSpace(customer.Address))
             {
+                var httpClient = httpClientFactory.CreateClient();
+
                 var apiUrl = appSettings.Value.PositionStack.Url;
                 var accessKey = appSettings.Value.PositionStack.AccessKey;
                 var queryParams = $"?access_key={accessKey}&query={Uri.EscapeDataString(customer.Address)}&fields=results.latitude,results.longitude";
 
-                // Call the PositionStack API
-                var response = await httpClient.GetStringAsync(apiUrl + queryParams);
+                var apiResult = await positionStackService.GetCoordinatesAsync(customer.Address, cancellationToken);
 
-                // Deserialize the response as dynamic as the format is not known to be  to get the desired data
-                positionStackResponse = JsonConvert.DeserializeObject<PositionStackResponse>(response);
+                if (!apiResult.IsSuccess)
+                {
+                    return Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>.Failure(
+                        GetCustomersByIdErrorCodes.ApiError,
+                        apiResult.ErrorDescription
+                    );
+                }
+
+                positionStackResponse = apiResult.Value;
             }
 
-            return new GetCustomerByIdResult(new CustomerAddressDetail
+            return Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>.Success(new GetCustomerByIdResult(new CustomerAddressDetail
             {
                 Address = customer.Address,
                 EmailAddress = customer.Email,
                 Name = customer.Name,
                 Latitude = positionStackResponse?.Data?[0].Latitude,
                 Longitude = positionStackResponse?.Data?[0].Longitude
-            });
+            }));
         }
     }
 
-    public partial class CustomerAddressDetail : SharedModels.Customer
+    public partial class CustomerAddressDetail : SharedModels.CustomerDTO
     {
         public double? Latitude { get; set; } = default!;
         public double? Longitude { get; set; } = default!;

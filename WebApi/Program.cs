@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RocketStoreApi.Configurations;
-using RocketStoreApi.CQRS;
 using RocketStoreApi.Features.CreateCustomer;
 using RocketStoreApi.Features.DeleteCustomer;
 using RocketStoreApi.Features.GetCustomers;
+using RocketStoreApi.Features.GetCustomersById;
 using RocketStoreApi.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,10 +55,12 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 // Register IHttpClientFactory
 builder.Services.AddHttpClient();
-builder.Services.AddScoped<IQueryHandler<GetCustomerByIdQuery, GetCustomerByIdResult>, GetCustomerByIdQueryHandler>();
 
 // Register AppSettings
 builder.Services.Configure<AppSettings>(builder.Configuration);
+
+// Register services
+builder.Services.AddScoped<IPositionStackService, PositionStackService>();
 
 var app = builder.Build();
 
