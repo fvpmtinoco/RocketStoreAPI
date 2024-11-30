@@ -80,6 +80,28 @@ namespace RocketStoreApi.Tests
             sut.Data!.Customers.Select(c => c.EmailAddress).Should().BeEquivalentTo([customerEmail]);
         }
 
+        [Fact]
+        public async Task PaginationSucceedsAsync()
+        {
+            // Arrange
+            Fixture specimenBuilders = new();
+            for (int i = 0; i < 10; i++)
+            {
+                _ = await CreateCustomerAsync();
+            }
+
+            RestRequest restRequest = new($"api/customers/", Method.Get);
+            restRequest.AddQueryParameter("pageSize", 2);
+
+            // Act
+            var sut = await customersFixture.RestClient.ExecuteGetAsync<GetCustomersResponse>(restRequest);
+
+            // Assert
+            sut.StatusCode.Should().Be(HttpStatusCode.OK);
+            sut.Data!.TotalCount.Should().BeGreaterThanOrEqualTo(10);
+            sut.Data!.Customers.Count.Should().Be(2);
+        }
+
         #endregion
     }
 }

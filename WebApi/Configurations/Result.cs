@@ -7,15 +7,16 @@ namespace RocketStoreApi.Configurations
     /// Describes the result of an operation.
     /// </summary>
     /// <typeparam name="T">The type of the result value.</typeparam>
-    /// <typeparam name="TErrorCode">The type of the error code used when the operation fails.</typeparam>
-    public partial class Result<T, TErrorCode> where TErrorCode : Enum
+    /// <typeparam name="TErrorCode">The type of the error code used when the operation fails. struct: This constraint means that TErrorCode must be a value type 
+    /// (like an enum, struct, or primitive type). This also allows it to be nullable (e.g., TErrorCode?), as nullable types are derived from struct.</typeparam>
+    public partial class Result<T, TErrorCode> where TErrorCode : struct, Enum
     {
         #region Public Properties
 
         /// <summary>
         /// Gets a value indicating whether the result represents a failure.
         /// </summary>
-        public bool IsSuccess { get; init; }
+        public bool IsSuccess => ErrorCode is null;
 
         /// <summary>
         /// Gets the value.
@@ -48,7 +49,6 @@ namespace RocketStoreApi.Configurations
         {
             return new Result<T, TErrorCode>
             {
-                IsSuccess = true,
                 Value = value
             };
         }
@@ -64,12 +64,8 @@ namespace RocketStoreApi.Configurations
         [SuppressMessage("Design", "CA1000:Do not declare static members on generic types", Justification = "By design.")]
         public static Result<T, TErrorCode> Failure(TErrorCode errorCode, string errorDescription)
         {
-            errorCode = errorCode ?? throw new ArgumentNullException(nameof(errorCode));
-            errorDescription = errorDescription ?? throw new ArgumentNullException(nameof(errorDescription));
-
             return new Result<T, TErrorCode>()
             {
-                IsSuccess = false,
                 ErrorCode = errorCode,
                 ErrorDescription = errorDescription
             };

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using RocketStoreApi.Configurations;
 using RocketStoreApi.CQRS;
@@ -11,7 +12,7 @@ namespace RocketStoreApi.Features.DeleteCustomer
 {
     public record DeleteCustomerCommand(Guid id) : ICommand<Result<Unit, DeleteCustomerErrorCodes>>;
 
-    public class DeleteCustomerHandler(ApplicationDbContext context, ILogger<DeleteCustomerHandler> logger) : ICommandHandler<DeleteCustomerCommand, Result<Unit, DeleteCustomerErrorCodes>>
+    internal class DeleteCustomerHandler(ApplicationDbContext context, ILogger<DeleteCustomerHandler> logger, IMemoryCache memoryCache) : ICommandHandler<DeleteCustomerCommand, Result<Unit, DeleteCustomerErrorCodes>>
     {
         public async Task<Result<Unit, DeleteCustomerErrorCodes>> Handle(DeleteCustomerCommand request, CancellationToken cancellationToken)
         {
@@ -25,6 +26,9 @@ namespace RocketStoreApi.Features.DeleteCustomer
 
             context.Customers.Remove(entity);
             await context.SaveChangesAsync(cancellationToken);
+
+            // Invalidate cache entry
+            memoryCache.Remove($"Customer_{request.id}");
 
             return Result<Unit, DeleteCustomerErrorCodes>.Success(Unit.Value);
         }

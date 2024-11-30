@@ -13,7 +13,7 @@ namespace RocketStoreApi.Features.CreateCustomer
     public record CreateCustomerCommand(string Name, string EmailAddress, string? VatNumber, string? Address) : ICommand<Result<CreateCustomerResult, CreateCustomerErrorCodes>>;
     public record CreateCustomerResult(Guid Id);
 
-    public class CreateCustomerHandler(ApplicationDbContext context, ILogger<CreateCustomerHandler> logger) : ICommandHandler<CreateCustomerCommand, Result<CreateCustomerResult, CreateCustomerErrorCodes>>
+    internal class CreateCustomerHandler(ApplicationDbContext context, ILogger<CreateCustomerHandler> logger) : ICommandHandler<CreateCustomerCommand, Result<CreateCustomerResult, CreateCustomerErrorCodes>>
     {
         public async Task<Result<CreateCustomerResult, CreateCustomerErrorCodes>> Handle(CreateCustomerCommand command, CancellationToken cancellationToken)
         {

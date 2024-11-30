@@ -12,22 +12,19 @@ namespace RocketStoreApi.Features.DeleteCustomer
     {
         public static void MapDeleteCustomer(this WebApplication app)
         {
-            app.MapDelete("api/customers/{id}", async (ISender sender, [Required] Guid id) =>
+            app.MapDelete("api/customers/{id}", async (ISender sender, [FromRoute, Required][Description("The costumer's identifier")] Guid id) =>
             {
                 DeleteCustomerCommand command = new DeleteCustomerCommand(id);
                 var result = await sender.Send(command);
                 if (result.IsSuccess)
                     return Results.NoContent();
 
-                // Error handling - return detailed error responses based on the result's error code
-                if (result.ErrorCode == DeleteCustomerErrorCodes.InvalidCustomer)
+                // If the customer doesn't exist (InvalidCustomer), return NotFound (404)
+                return Results.NotFound(new ProblemDetails
                 {
-                    // NotFound (404) when the customer does not exist
-                    return Results.NotFound(new ProblemDetails { Title = result.ErrorCode.ToString(), Detail = result.ErrorDescription });
-                }
-
-                // Generic Bad Request (400) for other errors
-                return Results.BadRequest();
+                    Title = result.ErrorCode.ToString(),
+                    Detail = result.ErrorDescription
+                });
 
             }).WithName("DeleteCustomer")
             .Produces(StatusCodes.Status204NoContent)

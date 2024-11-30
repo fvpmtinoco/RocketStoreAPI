@@ -7,7 +7,6 @@ using RocketStoreApi.SharedModels;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 
 namespace RocketStoreApi.Features.CreateCustomer
 {
@@ -41,26 +40,18 @@ namespace RocketStoreApi.Features.CreateCustomer
 
                 if (result.IsSuccess)
                     return Results.Created($"api/customers/{result.Value.Id}", new CreateCustomerResponse(result.Value.Id));
-                else
+
+                if (result.ErrorCode == CreateCustomerErrorCodes.CustomerAlreadyExists)
                 {
-                    // Error handling - return detailed error responses based on the result's error code
-                    var problemDetails = new ProblemDetails
+                    return Results.Conflict(new ProblemDetails
                     {
                         Title = result.ErrorCode.ToString(),
-                        Detail = result.ErrorDescription,
-                    };
-
-                    if (result.ErrorCode == CreateCustomerErrorCodes.CustomerAlreadyExists)
-                    {
-                        // Conflict (409) when the customer already exists
-                        problemDetails.Status = (int)HttpStatusCode.Conflict;
-                        return Results.Conflict(problemDetails);
-                    }
-
-                    // Generic Bad Request (400) for other errors
-                    problemDetails.Status = (int)HttpStatusCode.BadRequest;
-                    return Results.BadRequest(problemDetails);
+                        Detail = result.ErrorDescription
+                    });
                 }
+
+                // Generic Bad Request (400) for other errors
+                return Results.BadRequest();
             })
             .WithName("CreateCustomer")
             .Produces<CreateCustomerResponse>(StatusCodes.Status201Created)

@@ -11,6 +11,12 @@ namespace RocketStoreApi.Features.GetCustomersById
 {
     public interface IPositionStackService
     {
+        /// <summary>
+        /// Get the coordinates (latitude and longitude) of an address using the PositionStack API.
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         Task<Result<PositionStackResponse, GetCustomersByIdErrorCodes>> GetCoordinatesAsync(string address, CancellationToken cancellationToken);
     }
 
@@ -26,7 +32,7 @@ namespace RocketStoreApi.Features.GetCustomersById
         }
 
         // Virtual so it can be mocked
-        internal async Task<Result<PositionStackResponse, GetCustomersByIdErrorCodes>> GetCoordinatesAsync(string address, CancellationToken cancellationToken)
+        public virtual async Task<Result<PositionStackResponse, GetCustomersByIdErrorCodes>> GetCoordinatesAsync(string address, CancellationToken cancellationToken)
         {
             var httpClient = _httpClientFactory.CreateClient();
             var apiUrl = _appSettings.PositionStack.Url;

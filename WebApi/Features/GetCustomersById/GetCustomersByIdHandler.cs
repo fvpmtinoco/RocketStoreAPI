@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RocketStoreApi.Configurations;
+using RocketStoreApi.Configurations.Caching;
 using RocketStoreApi.CQRS;
 using RocketStoreApi.Features.GetCustomersById;
 using RocketStoreApi.Storage;
@@ -14,14 +16,18 @@ using System.Threading.Tasks;
 
 namespace RocketStoreApi.Features.GetCustomers
 {
-    public record GetCustomerByIdResult(CustomerAddressDetail? Customer);
+    public record GetCustomerByIdResult(CustomerDetail? Customer);
 
-    public class GetCustomerByIdQuery(Guid id) : IQuery<Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>>
+    public class GetCustomerByIdQuery(Guid id) : IQuery<Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>>, ICacheable
     {
         public readonly Guid Id = id;
+
+        public string CacheKey => $"Customer_{Id}";
+
+        public int SlidingExpirationInMinutes => 30;
     }
 
-    public class GetCustomerByIdQueryHandler(ApplicationDbContext context, IHttpClientFactory httpClientFactory, IOptions<AppSettings> appSettings, IPositionStackService positionStackService) : IQueryHandler<GetCustomerByIdQuery, Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>>
+    internal class GetCustomerByIdQueryHandler(ApplicationDbContext context, IMemoryCache cache, IHttpClientFactory httpClientFactory, IOptions<AppSettings> appSettings, IPositionStackService positionStackService) : IQueryHandler<GetCustomerByIdQuery, Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>>
     {
         public async Task<Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>> Handle(GetCustomerByIdQuery request, CancellationToken cancellationToken)
         {
@@ -57,7 +63,7 @@ namespace RocketStoreApi.Features.GetCustomers
                 positionStackResponse = apiResult.Value;
             }
 
-            return Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>.Success(new GetCustomerByIdResult(new CustomerAddressDetail
+            return Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>.Success(new GetCustomerByIdResult(new CustomerDetail
             {
                 Address = customer.Address,
                 EmailAddress = customer.Email,
@@ -66,12 +72,6 @@ namespace RocketStoreApi.Features.GetCustomers
                 Longitude = positionStackResponse?.Data?[0].Longitude
             }));
         }
-    }
-
-    public partial class CustomerAddressDetail : SharedModels.CustomerDTO
-    {
-        public double? Latitude { get; set; } = default!;
-        public double? Longitude { get; set; } = default!;
     }
 
     #region Position stack object structure

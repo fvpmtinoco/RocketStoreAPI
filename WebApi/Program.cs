@@ -4,20 +4,28 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RocketStoreApi.Configurations;
+using RocketStoreApi.Configurations.Caching;
 using RocketStoreApi.Features.CreateCustomer;
 using RocketStoreApi.Features.DeleteCustomer;
 using RocketStoreApi.Features.GetCustomers;
 using RocketStoreApi.Features.GetCustomersById;
 using RocketStoreApi.Storage;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the API
 
+// Register IMemoryCache for use in CachingBehavior
+builder.Services.AddMemoryCache();
+
+// Register MediatR services from the current assembly
 builder.Services.AddMediatR(config =>
 {
-    // Register MediatR services from the current assembly
-    config.RegisterServicesFromAssemblies(typeof(Program).Assembly);
+    config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+
+    // Behavior pipeline for caching
+    config.AddOpenBehavior(typeof(CachingBehavior<,>));
 });
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -30,9 +38,6 @@ builder.Services.AddOpenApiDocument(
         options.Title = "RocketStore API";
         options.Description = "REST API for the RocketStore Web Application";
     });
-
-// Register AutoMapper and scan the current assembly for profiles
-builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -51,7 +56,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddControllers();
 
 // Fluent validation DI
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddValidatorsFromAssemblyContaining(typeof(Program));
 
 // Register IHttpClientFactory
 builder.Services.AddHttpClient();
@@ -80,10 +85,9 @@ app.UseHttpsRedirection();
 
 // Set up routing (necessary for minimal API and controllers)
 app.UseRouting();
-
 app.MapControllers();
 
-//Minimal API 
+//Minimal API extension methods
 app.MapGetCustomers();
 app.MapGetCustomersById();
 app.MapCreateCustomer();
