@@ -44,6 +44,6 @@ The following steps were taken to implement key architectural patterns and impro
 2. Implemented pagination in US02
 3. Implemented caching in US03 using Mediatr pipelines
 
-### Steps 30/11/2024:
+### Steps 01/12/2024:
 1. Cachingbehavior tests
 2. Caching only successful responses
