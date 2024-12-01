@@ -27,7 +27,7 @@ The following steps were taken to implement key architectural patterns and impro
 1. Implemented CQRS and Mediator patterns using Mediatr.
 2. Implemented US02 & US03 using the minimal API pattern.
 3. Applied VSA (Vertical Slice Architecture) pattern (https://www.milanjovanovic.tech/blog/vertical-slice-architecture).
-4. Droppped the Startup.cs file, making use of simplified hosting model in the `Program.cs` file to configure services and middleware, available in later .NET versions.
+4. Droppped the Startup.cs file, making use of simplified hosting model in the `Program.cs` file to configure services and middleware.
 5. Refactor tests to use RestSharp.
 6. Added IXunitSerializer to enable Theory test to list all test outcomes in test explorer tree
 
@@ -36,8 +36,9 @@ The following steps were taken to implement key architectural patterns and impro
 2. Used FluentValidation to replicate the validations that existed in the Customer model.
 3. Refactored project folder structure
 4. Added Docker support
-5. Implemented US04 & US05
-6. Mapped appsettings to records in order to inject them and read external API settings
+5. Removed Automapper due to the mapping simplicity between models and entity
+6. Implemented US04 & US05
+7. Mapped appsettings to records in order to inject them and read external API settings
 
 ### Steps 29/11/2024:
 1. Completed missing tests
