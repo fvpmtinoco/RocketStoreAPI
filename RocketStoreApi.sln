@@ -7,11 +7,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "WebApi\WebApi.csp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{CD73677A-7257-4ECD-BBE3-C8C2B9A302C5}"
 	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-		..\README.md = ..\README.md
+		Files\Contract Testing.postman_collection.json = Files\Contract Testing.postman_collection.json
+		Files\Docker.postman_environment.json = Files\Docker.postman_environment.json
+		Files\Localhost.postman_environment.json = Files\Localhost.postman_environment.json
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi.Tests", "Tests\WebApi.Tests\WebApi.Tests.csproj", "{8B0CE0F3-9370-43DC-A0CE-7978DB947A30}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7C804D55-6430-4705-A553-81C95D4DB86B}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
