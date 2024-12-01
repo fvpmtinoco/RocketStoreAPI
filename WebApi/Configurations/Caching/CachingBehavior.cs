@@ -26,13 +26,21 @@ namespace RocketStoreApi.Configurations.Caching
             // Call the next behavior/handler in the pipeline
             var response = await next();
 
-            var cacheOptions = new MemoryCacheEntryOptions
+            // Cache only if the response is successful IResult
+            if (response is IResult result && result.IsSuccess)
             {
-                SlidingExpiration = TimeSpan.FromMinutes(request.SlidingExpirationInMinutes)
-            };
+                var cacheOptions = new MemoryCacheEntryOptions
+                {
+                    SlidingExpiration = TimeSpan.FromMinutes(request.SlidingExpirationInMinutes)
+                };
 
-            // Cache the response for future use
-            memoryCache.Set(request.CacheKey, response, cacheOptions);
+                memoryCache.Set(request.CacheKey, response, cacheOptions);
+                logger.LogInformation("Cached response with key: {CacheKey}", request.CacheKey);
+            }
+            else
+            {
+                logger.LogWarning("Response with key {CacheKey} not cached as the response was not successful.", request.CacheKey);
+            }
 
             return response;
         }

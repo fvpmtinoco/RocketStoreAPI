@@ -4,12 +4,21 @@ using System.Diagnostics.CodeAnalysis;
 namespace RocketStoreApi.Configurations
 {
     /// <summary>
+    /// Represents the result of an operation, indicating whether it was successful.
+    /// Used in caching behavior to determine cacheability.
+    /// </summary>
+    public interface IResult
+    {
+        bool IsSuccess { get; }
+    }
+
+    /// <summary>
     /// Describes the result of an operation.
     /// </summary>
     /// <typeparam name="T">The type of the result value.</typeparam>
     /// <typeparam name="TErrorCode">The type of the error code used when the operation fails. struct: This constraint means that TErrorCode must be a value type 
     /// (like an enum, struct, or primitive type). This also allows it to be nullable (e.g., TErrorCode?), as nullable types are derived from struct.</typeparam>
-    public partial class Result<T, TErrorCode> where TErrorCode : struct, Enum
+    public partial class Result<T, TErrorCode> : IResult where TErrorCode : struct, Enum
     {
         #region Public Properties
 

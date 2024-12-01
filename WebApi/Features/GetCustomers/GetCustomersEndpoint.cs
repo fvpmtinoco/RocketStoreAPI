@@ -31,7 +31,7 @@ namespace RocketStoreApi.Features.GetCustomers
                 var query = new GetCustomersQuery(name, email, pageNumber, pageSize);
                 var result = await sender.Send(query);
 
-                return Results.Ok(new GetCustomersResponse(result.Customers, result.TotalCount, pageNumber, pageSize));
+                return Results.Ok(new GetCustomersResponse(result.Value.Customers, result.Value.TotalCount, pageNumber, pageSize));
             })
             .WithName("GetCustomers")
             .Produces<List<CustomerDTO>>(StatusCodes.Status200OK)
