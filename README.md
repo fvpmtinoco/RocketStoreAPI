@@ -10,7 +10,7 @@ The following steps were taken to implement key architectural patterns and impro
 - Simple implementation of caching with IMemoryCache to reduce external API calls and avoid hitting rate limits. Injected into the MediatR pipeline behavior for efficient caching management. Invalidation occurs on deletion of the customer
 
 ## Improvements not addressed due to lack of time
-1. Cache concurrency issues are not fully addressed in the current implementation. Using libraries like LazyCache or similar could offer a more resilient solution for handling concurrent cache access and updates.
+1. Distributed cache was not considered due to time limitations. Cache concurrency issues are not fully addressed in the current implementation. Using libraries like LazyCache or similar could offer a more resilient solution for handling concurrent cache access and updates. 
 2. Concurrency issues related to create/delete operations are not addressed in this implementation. Synchronization mechanisms like locking or optimistic concurrency should be considered in a real world scenario
 3. The usage of higher-level abstraction to simplify the process of declaring endpoints and organizing them in a more modular way. Extension methods for WebApplication were used, but recurring to Carter modules (https://github.com/CarterCommunity/Carter) would have avoided some boilerplate code in Program.cs
 
@@ -43,3 +43,7 @@ The following steps were taken to implement key architectural patterns and impro
 1. Completed missing tests
 2. Implemented pagination in US02
 3. Implemented caching in US03 using Mediatr pipelines
+
+### Steps 30/11/2024:
+1. Cachingbehavior tests
+2. Caching only successful responses
