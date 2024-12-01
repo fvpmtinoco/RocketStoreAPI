@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using RocketStoreApi.Configurations;
-using RocketStoreApi.CQRS;
 using RocketStoreApi.Storage;
 using System;
 using System.Threading;
@@ -10,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace RocketStoreApi.Features.DeleteCustomer
 {
-    public record DeleteCustomerCommand(Guid id) : ICommand<Result<Unit, DeleteCustomerErrorCodes>>;
+    public record DeleteCustomerCommand(Guid id) : IRequest<Result<Unit, DeleteCustomerErrorCodes>>;
 
-    internal class DeleteCustomerHandler(ApplicationDbContext context, ILogger<DeleteCustomerHandler> logger, IMemoryCache memoryCache) : ICommandHandler<DeleteCustomerCommand, Result<Unit, DeleteCustomerErrorCodes>>
+    internal class DeleteCustomerHandler(ApplicationDbContext context, ILogger<DeleteCustomerHandler> logger, IMemoryCache memoryCache) : IRequestHandler<DeleteCustomerCommand, Result<Unit, DeleteCustomerErrorCodes>>
     {
         public async Task<Result<Unit, DeleteCustomerErrorCodes>> Handle(DeleteCustomerCommand request, CancellationToken cancellationToken)
         {

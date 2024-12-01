@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RocketStoreApi.Configurations;
-using RocketStoreApi.CQRS;
 using RocketStoreApi.Database.Entities;
 using RocketStoreApi.Storage;
 using System;
@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace RocketStoreApi.Features.CreateCustomer
 {
-    public record CreateCustomerCommand(string Name, string EmailAddress, string? VatNumber, string? Address) : ICommand<Result<CreateCustomerResult, CreateCustomerErrorCodes>>;
+    public record CreateCustomerCommand(string Name, string EmailAddress, string? VatNumber, string? Address) : IRequest<Result<CreateCustomerResult, CreateCustomerErrorCodes>>;
     public record CreateCustomerResult(Guid Id);
 
-    internal class CreateCustomerHandler(ApplicationDbContext context, ILogger<CreateCustomerHandler> logger) : ICommandHandler<CreateCustomerCommand, Result<CreateCustomerResult, CreateCustomerErrorCodes>>
+    internal class CreateCustomerHandler(ApplicationDbContext context, ILogger<CreateCustomerHandler> logger) : IRequestHandler<CreateCustomerCommand, Result<CreateCustomerResult, CreateCustomerErrorCodes>>
     {
         public async Task<Result<CreateCustomerResult, CreateCustomerErrorCodes>> Handle(CreateCustomerCommand command, CancellationToken cancellationToken)
         {

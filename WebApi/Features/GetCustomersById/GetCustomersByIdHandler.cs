@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RocketStoreApi.Configurations;
 using RocketStoreApi.Configurations.Caching;
-using RocketStoreApi.CQRS;
 using RocketStoreApi.Features.GetCustomersById;
 using RocketStoreApi.Storage;
 using System;
@@ -18,7 +18,7 @@ namespace RocketStoreApi.Features.GetCustomers
 {
     public record GetCustomerByIdResult(CustomerDetail? Customer);
 
-    public class GetCustomerByIdQuery(Guid id) : IQuery<Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>>, ICacheable
+    public class GetCustomerByIdQuery(Guid id) : IRequest<Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>>, ICacheable
     {
         public readonly Guid Id = id;
 
@@ -27,7 +27,7 @@ namespace RocketStoreApi.Features.GetCustomers
         public int SlidingExpirationInMinutes => 30;
     }
 
-    internal class GetCustomerByIdQueryHandler(ApplicationDbContext context, IHttpClientFactory httpClientFactory, IOptions<AppSettings> appSettings, IPositionStackService positionStackService, ILogger<GetCustomerByIdQueryHandler> logger) : IQueryHandler<GetCustomerByIdQuery, Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>>
+    internal class GetCustomerByIdQueryHandler(ApplicationDbContext context, IHttpClientFactory httpClientFactory, IOptions<AppSettings> appSettings, IPositionStackService positionStackService, ILogger<GetCustomerByIdQueryHandler> logger) : IRequestHandler<GetCustomerByIdQuery, Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>>
     {
         public async Task<Result<GetCustomerByIdResult, GetCustomersByIdErrorCodes>> Handle(GetCustomerByIdQuery request, CancellationToken cancellationToken)
         {

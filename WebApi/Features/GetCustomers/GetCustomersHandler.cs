@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using RocketStoreApi.Configurations;
-using RocketStoreApi.CQRS;
 using RocketStoreApi.SharedModels;
 using RocketStoreApi.Storage;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace RocketStoreApi.Features.GetCustomers
 {
     public record GetCustomersQueryResult(List<CustomerDTO> Customers, int TotalCount);
 
-    public class GetCustomersQuery(string? name, string? email, int pageNumber = 1, int pageSize = 10) : IQuery<Result<GetCustomersQueryResult, GetCustomersByIdErrorCodes>>
+    public class GetCustomersQuery(string? name, string? email, int pageNumber = 1, int pageSize = 10) : IRequest<Result<GetCustomersQueryResult, GetCustomersByIdErrorCodes>>
     {
         public readonly string? Name = name;
         public readonly string? Email = email;
@@ -20,7 +20,7 @@ namespace RocketStoreApi.Features.GetCustomers
         public readonly int pageSize = pageSize;
     }
 
-    internal class GetCustomersQueryHandler(ApplicationDbContext context) : IQueryHandler<GetCustomersQuery, Result<GetCustomersQueryResult, GetCustomersByIdErrorCodes>>
+    internal class GetCustomersQueryHandler(ApplicationDbContext context) : IRequestHandler<GetCustomersQuery, Result<GetCustomersQueryResult, GetCustomersByIdErrorCodes>>
     {
         public async Task<Result<GetCustomersQueryResult, GetCustomersByIdErrorCodes>> Handle(GetCustomersQuery request, CancellationToken cancellationToken)
         {
